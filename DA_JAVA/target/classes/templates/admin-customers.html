@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản lý khách hàng</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20260524-admin-cards')}">
+</head>
+<body class="admin-body">
+<div class="app-shell">
+    <aside class="sidebar">
+        <a class="sidebar-brand" th:href="@{/admin/dashboard}">
+            <span class="brand-symbol">CM</span>
+            <span><strong>Cafe Manager</strong><small>Admin workspace</small></span>
+        </a>
+        <nav class="side-nav">
+            <a th:href="@{/admin/dashboard}"><span class="nav-icon">01</span>Dashboard</a>
+            <a th:href="@{/admin}"><span class="nav-icon">02</span>Tổng quan</a>
+            <a th:href="@{/admin/products}"><span class="nav-icon">03</span>Sản phẩm</a>
+            <a th:href="@{/admin/staff}"><span class="nav-icon">04</span>Nhân viên</a>
+            <a th:href="@{/admin/orders}"><span class="nav-icon">05</span>Đơn hàng</a>
+            <a class="active" th:href="@{/admin/customers}"><span class="nav-icon">06</span>Khách hàng</a>
+        </nav>
+        <div class="sidebar-footer">
+            <span>Đăng nhập bởi</span>
+            <strong th:text="${fullName}">Admin</strong>
+            <form th:action="@{/logout}" method="post">
+                <button class="ghost wide" type="submit">Đăng xuất</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="admin-main wide-admin">
+        <div th:if="${success}" class="alert success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert danger" th:text="${error}"></div>
+        <div th:if="${loadError}" class="alert danger" th:text="'Lỗi tải dữ liệu: ' + ${loadError}"></div>
+
+        <section class="admin-page-head">
+            <div>
+                <p class="eyebrow">Khách hàng</p>
+                <h1>Quản lý tài khoản khách hàng</h1>
+                <p>Theo dõi thông tin liên hệ, tổng chi tiêu và trạng thái tài khoản khách hàng đã đăng ký.</p>
+            </div>
+            <form class="search-box" th:action="@{/admin/customers}" method="get">
+                <input name="customerKeyword" th:value="${customerKeyword}" placeholder="Tìm tên, SĐT, email, địa chỉ">
+                <button type="submit">Tìm</button>
+            </form>
+        </section>
+
+        <section class="metric-grid">
+            <article class="metric-card revenue"><span>Tài khoản đang mở</span><strong th:text="${activeCustomerCount ?: 0}">0</strong><small>Khách có thể đăng nhập</small></article>
+            <article class="metric-card"><span>Tài khoản đã khóa</span><strong th:text="${inactiveCustomerCount ?: 0}">0</strong><small>Tạm dừng đăng nhập</small></article>
+            <article class="metric-card"><span>Kết quả hiển thị</span><strong th:text="${customerCount ?: 0}">0</strong><small>Theo bộ lọc hiện tại</small></article>
+            <article class="metric-card"><span>Bảo mật</span><strong>OTP</strong><small>Khách tự đăng ký và khôi phục mật khẩu</small></article>
+        </section>
+
+        <section class="data-panel full-panel">
+            <div class="panel-heading">
+                <div><p class="eyebrow">Danh sách</p><h2>Tài khoản khách hàng</h2></div>
+            </div>
+            <div class="customer-account-list">
+                <article th:if="${#lists.isEmpty(customers)}" class="empty-state">Chưa có khách hàng phù hợp.</article>
+                <article class="customer-account-card" th:each="customer : ${customers}">
+                    <form th:action="@{/admin/customers}" method="post" class="customer-account-form">
+                        <input type="hidden" name="customerId" th:value="${customer.customerId}">
+                        <div class="customer-account-head">
+                            <div>
+                                <p class="eyebrow" th:text="'Khách #' + ${customer.customerId}">Khách #1</p>
+                                <h3 th:text="${customer.fullName}">Khách hàng</h3>
+                            </div>
+                            <span class="badge" th:classappend="${customer.active} ? ' ok' : ' muted'" th:text="${customer.active} ? 'Hoạt động' : 'Đã khóa'">Hoạt động</span>
+                        </div>
+
+                        <div class="customer-field-grid">
+                            <label>Số điện thoại<input name="phone" th:value="${customer.phone}" required></label>
+                            <label>Họ tên<input name="fullName" th:value="${customer.fullName}" required></label>
+                            <label>Email<input name="email" type="email" th:value="${customer.email}"></label>
+                            <label>Địa chỉ<input name="address" th:value="${customer.address}"></label>
+                            <div><span>Tổng chi tiêu</span><strong th:text="${customer.totalSpentFormatted}">0 VND</strong></div>
+                        </div>
+
+                        <div class="customer-account-actions">
+                            <button class="primary small" type="submit">Lưu thông tin</button>
+                        </div>
+                    </form>
+
+                    <div class="customer-secondary-actions">
+                        <form th:action="@{/admin/customers/{id}/toggle(id=${customer.customerId})}" method="post">
+                            <button class="danger-button small" type="submit" th:text="${customer.active} ? 'Khóa tài khoản' : 'Mở khóa'">Khóa</button>
+                        </form>
+                        <form th:action="@{/admin/customers/{id}/delete(id=${customer.customerId})}" method="post"
+                              onsubmit="return confirm('Ẩn khách hàng này khỏi phần mềm? Dữ liệu và lịch sử đơn hàng vẫn được lưu trong database.');">
+                            <button class="danger-button small" type="submit">Xóa khỏi danh sách</button>
+                        </form>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

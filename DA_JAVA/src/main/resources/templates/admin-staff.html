@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản lý nhân viên</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20260524-admin-cards')}">
+</head>
+<body class="admin-body">
+<div class="app-shell">
+    <aside class="sidebar">
+        <a class="sidebar-brand" th:href="@{/admin/dashboard}"><span class="brand-symbol">CM</span><span><strong>Cafe Manager</strong><small>Admin workspace</small></span></a>
+        <nav class="side-nav">
+            <a th:href="@{/admin/dashboard}"><span class="nav-icon">01</span>Dashboard</a>
+            <a th:href="@{/admin}"><span class="nav-icon">02</span>Tổng quan</a>
+            <a th:href="@{/admin/products}"><span class="nav-icon">03</span>Sản phẩm</a>
+            <a class="active" th:href="@{/admin/staff}"><span class="nav-icon">04</span>Nhân viên</a>
+            <a th:href="@{/admin/orders}"><span class="nav-icon">05</span>Đơn hàng</a>
+            <a th:href="@{/admin/customers}"><span class="nav-icon">06</span>Khách hàng</a>
+        </nav>
+        <div class="sidebar-footer"><span>Đăng nhập bởi</span><strong th:text="${fullName}">Admin</strong><form th:action="@{/logout}" method="post"><button class="ghost wide" type="submit">Đăng xuất</button></form></div>
+    </aside>
+
+    <main class="admin-main wide-admin">
+        <div th:if="${success}" class="alert success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert danger" th:text="${error}"></div>
+        <div th:if="${loadError}" class="alert danger" th:text="'Lỗi tải dữ liệu: ' + ${loadError}"></div>
+
+        <section class="admin-page-head">
+            <div><p class="eyebrow">Nhân viên</p><h1>Hiệu suất và tài khoản nhân sự</h1><p>Quản lý quyền truy cập và xem doanh thu xử lý theo từng nhân viên.</p></div>
+            <form th:action="@{/admin/staff}" method="get" class="search-box large"><input name="staffKeyword" th:value="${param.staffKeyword}" placeholder="Tìm tên hoặc tài khoản"><button type="submit">Tìm</button></form>
+        </section>
+
+        <section class="metric-grid">
+            <article class="metric-card"><span>Tổng tài khoản</span><strong th:text="${staffCount ?: 0}">0</strong><small>Admin và nhân viên quầy</small></article>
+            <article class="metric-card"><span>Đang hoạt động</span><strong th:text="${activeStaffCount ?: 0}">0</strong><small>Có thể đăng nhập hệ thống</small></article>
+            <article class="metric-card"><span>Đã khóa</span><strong th:text="${inactiveStaffCount ?: 0}">0</strong><small>Tạm ngưng quyền truy cập</small></article>
+            <article class="metric-card"><span>Đơn đã xử lý</span><strong th:text="${staffHandledOrderCount ?: 0}">0</strong><small>Từ các đơn đã thanh toán</small></article>
+        </section>
+
+        <section class="analytics-grid">
+            <article class="data-panel chart-panel">
+                <div class="panel-heading"><div><p class="eyebrow">Hiệu suất</p><h2>Doanh thu theo nhân viên</h2></div></div>
+                <div class="bar-chart">
+                    <div th:if="${#lists.isEmpty(staffRevenueStats)}" class="empty-state">Chưa có dữ liệu nhân viên.</div>
+                    <div class="bar-row" th:each="item : ${staffRevenueStats}">
+                        <span th:text="${item.label}">Nhân viên</span>
+                        <div class="bar-track accent"><div class="bar-fill" th:style="${item.percentStyle}"></div></div>
+                        <strong th:text="${item.amountFormatted}">0 VND</strong>
+                    </div>
+                </div>
+            </article>
+            <article class="data-panel">
+                <div class="panel-heading"><div><p class="eyebrow">Tạo tài khoản</p><h2>Nhân viên mới</h2></div></div>
+                <form th:action="@{/admin/staff}" method="post" th:object="${newStaff}" class="editor-form vertical-form">
+                    <label>Tài khoản<input th:field="*{username}" placeholder="username" required></label>
+                    <label>Mật khẩu<input th:field="*{password}" type="password" placeholder="••••••••" required></label>
+                    <label>Họ tên<input th:field="*{fullName}" placeholder="Nguyễn Văn A" required></label>
+                    <label>Email khôi phục<input th:field="*{email}" type="email" placeholder="nhanvien@gmail.com" required></label>
+                    <label>Vai trò<select th:field="*{role}"><option value="staff">Nhân viên</option><option value="admin">Quản trị</option></select></label>
+                    <button class="primary wide" type="submit">Tạo tài khoản</button>
+                </form>
+            </article>
+        </section>
+
+        <section class="data-panel full-panel">
+            <div class="panel-heading"><div><p class="eyebrow">Danh sách</p><h2>Tài khoản nhân viên</h2></div></div>
+            <div class="management-card-grid">
+                <article th:if="${#lists.isEmpty(staff)}" class="empty-state">Chưa có nhân viên phù hợp.</article>
+                <article class="management-card staff-management-card" th:each="user : ${staff}">
+                    <div class="management-card-title">
+                        <div>
+                            <p class="eyebrow" th:text="'Nhân viên #' + ${user.userId}">Nhân viên #1</p>
+                            <h3 th:text="${user.fullName}">Name</h3>
+                        </div>
+                        <span class="badge" th:classappend="${user.active} ? ' ok' : ' muted'" th:text="${user.active} ? 'Hoạt động' : 'Đã khóa'"></span>
+                    </div>
+                    <div class="management-detail-grid">
+                        <div><span>Tài khoản</span><strong th:text="${user.username}">username</strong></div>
+                        <div><span>Vai trò</span><strong th:text="${user.role == 'admin' ? 'Quản trị' : 'Nhân viên'}">staff</strong></div>
+                        <div class="wide"><span>Email khôi phục</span><strong th:text="${user.email != null and !user.email.isBlank() ? user.email : 'Chưa cấu hình'}">email</strong></div>
+                    </div>
+                    <div class="management-actions">
+                        <form th:action="@{/admin/staff/{id}/email(id=${user.userId})}" method="post" class="staff-email-form">
+                            <input name="email" type="email" th:value="${user.email}" placeholder="gmail nhận OTP" required>
+                            <button class="secondary small" type="submit">Lưu email</button>
+                        </form>
+                        <form th:action="@{/admin/staff/{id}/toggle(id=${user.userId})}" method="post">
+                            <button class="ghost small" type="submit" th:text="${user.active} ? 'Khóa' : 'Mở khóa'">Đổi</button>
+                        </form>
+                        <form th:if="${user.role == 'staff'}"
+                              th:action="@{/admin/staff/{id}/delete(id=${user.userId})}" method="post"
+                              onsubmit="return confirm('Ẩn nhân viên này khỏi phần mềm? Lịch sử xử lý đơn vẫn được lưu trong database.');">
+                            <button class="danger-button small" type="submit">Xóa</button>
+                        </form>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

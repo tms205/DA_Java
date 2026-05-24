@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chọn đăng nhập</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="auth-page">
+<main class="auth-shell role-auth-shell">
+    <section class="brand-panel">
+        <div class="brand-mark">CM</div>
+        <p class="eyebrow">Cafe Management</p>
+        <h1>Chọn khu vực đăng nhập</h1>
+        <p class="lead">Mỗi nhóm người dùng có màn hình riêng để thao tác nhanh hơn và tránh nhầm lẫn khi demo.</p>
+    </section>
+
+    <section class="auth-choice-grid">
+        <a class="auth-choice-card staff-choice" th:href="@{/login/internal}">
+            <span class="choice-icon">POS</span>
+            <small>Nội bộ</small>
+            <strong>Admin & Nhân viên</strong>
+            <p>Quản lý dashboard, sản phẩm, nhân viên và thanh toán đơn chờ.</p>
+        </a>
+
+        <a class="auth-choice-card customer-choice" th:href="@{/login/customer}">
+            <span class="choice-icon">MENU</span>
+            <small>Khách hàng</small>
+            <strong>Xem menu & đặt món</strong>
+            <p>Đăng nhập bằng số điện thoại, chọn danh mục món và gửi đơn đến quầy.</p>
+        </a>
+    </section>
+</main>
+</body>
+</html>

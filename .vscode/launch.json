@@ -1,0 +1,24 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Cafe Management (OTP Gmail)",
+            "request": "launch",
+            "mainClass": "com.huit.da_java.App",
+            "projectName": "cafe-management-web",
+            "cwd": "${workspaceFolder}/DA_JAVA",
+            "env": {
+                "MAIL_PASSWORD": "${input:gmailAppPassword}"
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "gmailAppPassword",
+            "type": "promptString",
+            "description": "Nhap Gmail App Password 16 ky tu de gui OTP",
+            "password": true
+        }
+    ]
+}

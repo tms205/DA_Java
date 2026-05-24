@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Staff POS</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="staff-body">
+<header class="topbar staff-topbar">
+    <a class="brand-link" th:href="@{/staff/pos}">Cafe POS</a>
+    <nav>
+        <a class="active" th:href="@{/staff/pos}">Đơn chờ</a>
+        <a th:href="@{/admin/dashboard}">Admin</a>
+    </nav>
+    <form th:action="@{/logout}" method="post">
+        <span th:text="${fullName}">Staff</span>
+        <button class="link-button" type="submit">Đăng xuất</button>
+    </form>
+</header>
+
+<main class="page staff-page">
+    <div th:if="${success}" class="alert success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert danger" th:text="${error}"></div>
+    <div th:if="${loadError}" class="alert danger" th:text="'Lỗi tải dữ liệu: ' + ${loadError}"></div>
+    <div id="order-notification" class="alert success realtime-alert" hidden></div>
+
+    <section class="staff-hero">
+        <div>
+            <p class="eyebrow">Realtime order queue</p>
+            <h1>Đơn khách đang chờ xử lý</h1>
+            <p>Kiểm tra ghi chú, đối soát món và xác nhận thanh toán tại quầy.</p>
+        </div>
+        <div class="staff-hero-actions">
+            <span class="live-pill"><span></span> Realtime đang bật</span>
+            <a class="ghost" th:href="@{/staff/pos}">Tải lại</a>
+        </div>
+    </section>
+
+    <section class="staff-metric-grid">
+        <article>
+            <span>Đơn đang chờ</span>
+            <strong th:text="${pendingOrdersCount ?: 0}">0</strong>
+        </article>
+        <article>
+            <span>Tổng món</span>
+            <strong th:text="${pendingItemsCount ?: 0}">0</strong>
+        </article>
+        <article>
+            <span>Tổng tạm tính</span>
+            <strong th:text="${pendingTotalFormatted}">0 VND</strong>
+        </article>
+    </section>
+
+    <section class="staff-workspace">
+        <aside class="staff-help-panel">
+            <p class="eyebrow">Quy trình</p>
+            <h2>Xử lý tại quầy</h2>
+            <ol>
+                <li>Nhận thông báo đơn mới.</li>
+                <li>Kiểm tra món, ghi chú và địa chỉ giao hàng nếu có.</li>
+                <li>Đối soát đúng phương thức khách đã chọn.</li>
+                <li>Xác nhận để hoàn tất đơn hoặc hủy nếu đơn sai.</li>
+            </ol>
+        </aside>
+
+        <section class="order-list staff-order-list">
+            <article th:if="${#lists.isEmpty(pendingOrders)}" class="data-panel empty-state staff-empty-state">
+                <strong>Chưa có đơn khách đang chờ.</strong>
+                <span>Khi khách gửi đơn, màn hình này sẽ tự thông báo và cập nhật.</span>
+            </article>
+
+            <article class="order-card staff-order-card" th:each="order : ${pendingOrders}">
+                <div class="order-card-head">
+                    <div>
+                        <p class="eyebrow" th:text="'Đơn #' + ${order.orderId}">Đơn #1</p>
+                        <h2 th:text="${order.customerName != null ? order.customerName : 'Khách hàng'}">Khách hàng</h2>
+                        <p class="hint" th:text="${order.customerNote != null && !order.customerNote.isBlank() ? order.customerNote : 'Không có ghi chú'}">Ghi chú</p>
+                        <p class="order-time-line" th:text="'Thời gian đặt: ' + ${order.orderTimeText}">Thời gian đặt</p>
+                        <div class="staff-order-tags">
+                            <span th:text="${order.orderTypeText}">Nhận tại quầy</span>
+                            <span th:text="${order.requestedPaymentMethodText}">MoMo QR</span>
+                        </div>
+                        <p class="delivery-note"
+                           th:if="${order.deliveryAddress != null && !order.deliveryAddress.isBlank()}"
+                           th:text="'Giao đến: ' + ${order.deliveryAddress}">Giao đến</p>
+                    </div>
+                    <div class="order-total-box">
+                        <span>Tạm tính</span>
+                        <strong th:text="${order.totalFormatted}">0 VND</strong>
+                    </div>
+                </div>
+
+                <div class="order-items staff-order-items">
+                    <div class="order-item" th:each="item : ${order.details}">
+                        <span th:text="${item.productName}">Món</span>
+                        <small th:text="'x' + ${item.quantity}">x1</small>
+                        <strong th:text="${item.subtotalFormatted}">0 VND</strong>
+                    </div>
+                </div>
+
+                <div class="staff-pay-form">
+                    <div class="staff-method-summary">
+                        <span>Phương thức khách chọn</span>
+                        <strong th:text="${order.requestedPaymentMethodText}">MoMo QR</strong>
+                    </div>
+                    <div class="staff-order-actions">
+                        <form th:action="@{/staff/checkout}" method="post">
+                            <input type="hidden" name="orderId" th:value="${order.orderId}">
+                            <input type="hidden" name="method" th:value="${order.requestedPaymentMethodOrDefault}">
+                            <button class="primary" type="submit">Xác nhận đơn</button>
+                        </form>
+                        <form th:action="@{/staff/cancel}" method="post"
+                              onsubmit="return confirm('Hủy đơn này?');">
+                            <input type="hidden" name="orderId" th:value="${order.orderId}">
+                            <button class="danger-button" type="submit">Hủy đơn</button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </section>
+</main>
+<script>
+    (function () {
+        var alertBox = document.getElementById("order-notification");
+        if (!alertBox || !window.EventSource) {
+            return;
+        }
+
+        var stream = new EventSource("/staff/orders/stream");
+        stream.addEventListener("new-order", function (event) {
+            var order = JSON.parse(event.data);
+            var customerName = order.customerName || "Khách hàng";
+            var total = order.totalFormatted || "0 VND";
+            alertBox.textContent = "Có đơn mới #" + order.orderId + " từ " + customerName + " - " + total + ". Đang cập nhật danh sách...";
+            alertBox.hidden = false;
+            window.setTimeout(function () {
+                window.location.reload();
+            }, 1600);
+        });
+
+        stream.addEventListener("order-updated", function (event) {
+            var order = JSON.parse(event.data);
+            alertBox.textContent = "Đơn #" + order.orderId + " đã được cập nhật. Đang tải lại danh sách...";
+            alertBox.hidden = false;
+            window.setTimeout(function () {
+                window.location.reload();
+            }, 1000);
+        });
+
+        stream.onerror = function () {
+            stream.close();
+            alertBox.textContent = "Kết nối realtime bị gián đoạn. Bạn vẫn có thể bấm Tải lại để cập nhật đơn.";
+            alertBox.hidden = false;
+        };
+    })();
+</script>
+</body>
+</html>

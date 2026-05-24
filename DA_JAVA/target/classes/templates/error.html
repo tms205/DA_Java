@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lỗi hệ thống</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <style>
+        /* --- CSS VARIABLES ĐỒNG BỘ HỆ THỐNG --- */
+        :root {
+            --primary-color: #8B5A2B; /* Nâu cafe ấm áp */
+            --primary-hover: #6F4621;
+            --bg-light: #FDFBF7;
+            --text-dark: #2C2520;
+            --text-muted: #7A6F66;
+            --border-color: #E8E2DC;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --shadow-lg: 0 20px 40px rgba(139, 90, 43, 0.15);
+        }
+
+        body.auth-page {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Khung chứa chính phủ TOÀN BỘ tông màu nền Cafe đồng bộ với Login */
+        .auth-shell.narrow {
+            width: 100%;
+            max-width: 480px; /* Định dạng thu gọn cho trang lỗi/nhỏ */
+            margin: 1.5rem;
+            background: linear-gradient(135deg, #FDFBF9 0%, #F3EAE0 50%, #EADCC9 100%);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            padding: 2.5rem;
+            box-sizing: border-box;
+        }
+
+        /* Thẻ hiển thị nội dung kính mờ cao cấp */
+        .auth-card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Icon cảnh báo lỗi trang trí bằng CSS thuần */
+        .error-icon {
+            background: #FFEBEE;
+            color: #C62828;
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            border: 1px solid #FFCDD2;
+        }
+
+        .auth-card h1 {
+            color: #C62828; /* Đổi sang màu đỏ cam trầm để tiệp với tone nâu và báo lỗi rõ ràng */
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .auth-card .lead {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin: 0 0 1rem 0;
+        }
+
+        /* Nút quay về đồng bộ nút Đăng nhập */
+        .primary-button {
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            padding: 0.85rem;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .primary-button:hover {
+            background: var(--primary-hover);
+        }
+
+        .primary-button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body class="auth-page">
+<main class="auth-shell narrow">
+    <section class="auth-card">
+        <!-- Thêm icon dấu chấm than trực quan, thân thiện cho trang lỗi -->
+        <div class="error-icon">!</div>
+        <h1>Có lỗi xảy ra</h1>
+        <p class="lead">Ứng dụng không xử lý được yêu cầu này.<br>Vui lòng thử lại sau hoặc quay về trang chủ.</p>
+        <a class="primary-button" th:href="@{/}">Về trang chính</a>
+    </section>
+</main>
+</body>
+</html>

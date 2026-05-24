@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard phân tích</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20260524-dashboard-share')}">
+</head>
+<body class="admin-body">
+<div class="app-shell">
+    <aside class="sidebar">
+        <a class="sidebar-brand" th:href="@{/admin/dashboard}">
+            <span class="brand-symbol">CM</span>
+            <span><strong>Cafe Manager</strong><small>Admin workspace</small></span>
+        </a>
+        <nav class="side-nav">
+            <a th:classappend="${activePage == 'dashboard'} ? ' active'" th:href="@{/admin/dashboard}"><span class="nav-icon">01</span>Dashboard</a>
+            <a th:classappend="${activePage == 'overview'} ? ' active'" th:href="@{/admin}"><span class="nav-icon">02</span>Tổng quan</a>
+            <a th:classappend="${activePage == 'products'} ? ' active'" th:href="@{/admin/products}"><span class="nav-icon">03</span>Sản phẩm</a>
+            <a th:classappend="${activePage == 'staff'} ? ' active'" th:href="@{/admin/staff}"><span class="nav-icon">04</span>Nhân viên</a>
+            <a th:classappend="${activePage == 'orders'} ? ' active'" th:href="@{/admin/orders}"><span class="nav-icon">05</span>Đơn hàng</a>
+            <a th:classappend="${activePage == 'customers'} ? ' active'" th:href="@{/admin/customers}"><span class="nav-icon">06</span>Khách hàng</a>
+        </nav>
+        <div class="sidebar-footer">
+            <span>Đăng nhập bởi</span>
+            <strong th:text="${fullName}">Admin</strong>
+            <form th:action="@{/logout}" method="post">
+                <button class="ghost wide" type="submit">Đăng xuất</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="admin-main wide-admin">
+        <div th:if="${loadError}" class="alert danger" th:text="'Lỗi tải dữ liệu: ' + ${loadError}"></div>
+
+        <section class="admin-page-head">
+            <div>
+                <p class="eyebrow">Dashboard</p>
+                <h1>Biểu đồ phân tích kinh doanh</h1>
+                <p>Theo dõi doanh thu, thị phần danh mục, phương thức thanh toán và các món bán chạy.</p>
+            </div>
+        </section>
+
+        <section class="analytics-grid">
+            <article class="data-panel category-share-panel">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">Thị phần danh mục</p>
+                        <h2>Tỷ trọng doanh thu</h2>
+                    </div>
+                </div>
+                <div th:if="${#lists.isEmpty(categoryRevenueShares)}" class="empty-state">Chưa có doanh thu theo danh mục.</div>
+                <div class="category-share-content" th:unless="${#lists.isEmpty(categoryRevenueShares)}">
+                    <div class="donut-chart-wrap">
+                        <svg class="donut-chart" viewBox="0 0 42 42" role="img" aria-label="Biểu đồ thị phần doanh thu theo danh mục">
+                            <circle class="donut-chart-base" cx="21" cy="21" r="15.9155"></circle>
+                            <circle class="donut-chart-segment"
+                                    th:each="item : ${categoryRevenueShares}"
+                                    cx="21" cy="21" r="15.9155"
+                                    th:style="${item.chartStyle}"></circle>
+                        </svg>
+                        <div class="donut-chart-center">
+                            <strong>100%</strong>
+                            <small>Doanh thu</small>
+                        </div>
+                    </div>
+                    <div class="category-share-legend">
+                        <article class="category-share-row" th:each="item : ${categoryRevenueShares}">
+                            <span class="share-color" th:style="'background: ' + ${item.color}"></span>
+                            <div>
+                                <strong th:text="${item.label}">Cà phê</strong>
+                                <small th:text="${item.quantity} + ' món đã bán'">0 món đã bán</small>
+                            </div>
+                            <div class="category-share-values">
+                                <b th:text="${item.percentFormatted}">0.0%</b>
+                                <small th:text="${item.revenueFormatted}">0 VND</small>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </article>
+
+            <article class="data-panel chart-panel">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">7 ngày gần đây</p>
+                        <h2>Biểu đồ doanh thu</h2>
+                    </div>
+                </div>
+                <div class="revenue-column-chart">
+                    <div th:if="${#lists.isEmpty(revenueChart)}" class="empty-state">Chưa có dữ liệu doanh thu.</div>
+                    <div class="revenue-column" th:each="item : ${revenueChart}">
+                        <div class="column-value" th:text="${item.amountFormatted}">0 VND</div>
+                        <div class="column-track">
+                            <div class="column-fill" th:classappend="${item.amount == 0} ? ' empty'" th:style="${item.heightStyle}"></div>
+                        </div>
+                        <strong th:text="${item.label}">14/05</strong>
+                        <small th:text="${item.count} + ' đơn'">0 đơn</small>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <section class="analytics-grid">
+            <article class="data-panel chart-panel">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">Thanh toán</p>
+                        <h2>Cơ cấu phương thức</h2>
+                    </div>
+                </div>
+                <div class="bar-chart">
+                    <div th:if="${#lists.isEmpty(paymentStats)}" class="empty-state">Chưa có dữ liệu thanh toán.</div>
+                    <div class="bar-row" th:each="item : ${paymentStats}">
+                        <span th:text="${item.label}">cash</span>
+                        <div class="bar-track accent"><div class="bar-fill" th:style="${item.percentStyle}"></div></div>
+                        <strong th:text="${item.count} + ' đơn'">0 đơn</strong>
+                    </div>
+                </div>
+            </article>
+
+            <article class="data-panel chart-panel">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">Món nổi bật</p>
+                        <h2>Top sản phẩm bán chạy</h2>
+                    </div>
+                </div>
+                <div class="product-leaderboard">
+                    <div th:if="${#lists.isEmpty(topProducts)}" class="empty-state">Chưa có sản phẩm phát sinh doanh thu.</div>
+                    <article class="product-rank-card" th:each="item, stat : ${topProducts}">
+                        <span class="rank-number" th:text="${stat.count}">1</span>
+                        <img th:src="${item.displayImageUrl}" th:alt="${item.name}">
+                        <div class="product-rank-body">
+                            <div>
+                                <strong th:text="${item.name}">Latte</strong>
+                                <small th:text="${item.categoryName != null ? item.categoryName : 'Chưa phân loại'}">Coffee</small>
+                            </div>
+                            <div class="sales-meta">
+                                <span><b th:text="${item.quantity}">0</b> món</span>
+                                <span th:text="${item.revenueFormatted}">0 VND</span>
+                            </div>
+                            <div class="sales-progress"><span th:style="${item.percentStyle}"></span></div>
+                        </div>
+                    </article>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>

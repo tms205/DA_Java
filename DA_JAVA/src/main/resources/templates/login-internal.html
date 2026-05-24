@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng nhập nội bộ</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="auth-page">
+<main class="auth-shell">
+    <section class="brand-panel">
+        <div class="brand-mark">CM</div>
+        <p class="eyebrow">Internal access</p>
+        <h1>Khu vực nội bộ</h1>
+        <p class="lead">Dành cho admin và nhân viên quầy để quản lý vận hành, xử lý đơn và theo dõi doanh thu.</p>
+        <div class="feature-grid">
+            <span>Admin dashboard</span>
+            <span>Staff POS</span>
+            <span>Đơn chờ realtime</span>
+            <span>Báo cáo doanh thu</span>
+        </div>
+    </section>
+
+    <section class="auth-card focused-auth-card">
+        <a class="back-link" th:href="@{/login}">← Chọn loại tài khoản</a>
+        <div th:if="${success}" class="alert success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert danger" th:text="${error}"></div>
+
+        <p class="eyebrow">Admin / Staff</p>
+        <h2>Đăng nhập tài khoản nội bộ</h2>
+        <form th:action="@{/login/staff}" method="post" class="form-stack">
+            <label>Tài khoản
+                <input name="username" autocomplete="username" placeholder="admin hoặc staff" required>
+            </label>
+            <label>Mật khẩu
+                <input type="password" name="password" autocomplete="current-password" placeholder="••••••••" required>
+            </label>
+            <button class="primary wide" type="submit">Vào hệ thống</button>
+        </form>
+        <p class="auth-switch-text">
+            <a th:href="@{/forgot-password/internal}">Quên mật khẩu?</a>
+        </p>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng nhập khách hàng</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20260524-customer-security')}">
+    <style>
+        /* --- CSS VARIABLES ĐỒNG BỘ HỆ THỐNG --- */
+        :root {
+            --primary-color: #8B5A2B; /* Nâu cafe ấm áp */
+            --primary-hover: #6F4621;
+            --secondary-color: #EADCC9; 
+            --bg-light: #FDFBF7;
+            --text-dark: #2C2520;
+            --text-muted: #7A6F66;
+            --border-color: #E8E2DC;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --shadow-lg: 0 20px 40px rgba(139, 90, 43, 0.15);
+        }
+
+        body.auth-page {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Khung chứa chính phủ TOÀN BỘ tông màu nền Cafe */
+        .auth-shell.customer-flip-shell {
+            display: grid;
+            grid-template-columns: 1fr;
+            width: 100%;
+            max-width: 1000px;
+            min-height: 620px;
+            margin: 1.5rem;
+            /* Phủ màu gradient toàn bộ khung */
+            background: linear-gradient(135deg, #FDFBF9 0%, #F3EAE0 50%, #EADCC9 100%);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        @media (min-width: 768px) {
+            .auth-shell.customer-flip-shell {
+                grid-template-columns: 4.5fr 5.5fr;
+            }
+        }
+
+        /* Banner Trái */
+        .brand-panel {
+            background: transparent; /* Loại bỏ nền riêng để hòa vào khung lớn */
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .brand-mark {
+            background: var(--primary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            font-weight: bold;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(139, 90, 43, 0.2);
+        }
+
+        .eyebrow {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin: 0 0 0.5rem 0;
+            font-weight: 600;
+        }
+
+        .brand-panel h1 {
+            color: var(--primary-color);
+            margin: 0 0 1rem 0;
+            font-size: 2.2rem;
+            line-height: 1.2;
+        }
+
+        .brand-panel .lead {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .feature-grid span {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 0.6rem;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            color: var(--primary-color);
+            font-weight: 500;
+            border: 1px solid rgba(139, 90, 43, 0.1);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Cột Phải chứa Form Lật */
+        .auth-card.flip-auth-card {
+            position: relative;
+            perspective: 1000px;
+            background: transparent; /* Để lộ nền màu đồng bộ phía sau */
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .flip-toggle {
+            display: none;
+        }
+
+        .flip-card-stage {
+            width: 100%;
+            height: 100%;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .flip-toggle:checked + .flip-card-stage .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        /* Thẻ lật mặt trong suốt nhẹ tạo chiều sâu trên nền màu cafe mới */
+        .flip-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.4); 
+            backdrop-filter: blur(8px); /* Tạo hiệu ứng kính mờ cao cấp */
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-sizing: border-box;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .flip-face-back {
+            transform: rotateY(180deg);
+        }
+
+        .flip-face h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
+            color: var(--text-dark);
+        }
+
+        .section-note {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin: 0 0 1.25rem 0;
+        }
+
+        .form-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 1.1rem;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 480px) {
+            .field-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .form-stack label {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-stack input, .form-stack textarea {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            outline: none;
+            font-family: inherit;
+            transition: all 0.2s;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-stack input:focus, .form-stack textarea:focus {
+            border-color: var(--primary-color);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(139, 90, 43, 0.15);
+        }
+
+        /* Buttons */
+        button.wide {
+            width: 100%;
+            padding: 0.85rem;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s, transform 0.1s;
+            margin-top: 0.5rem;
+        }
+
+        button.primary.wide {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        button.primary.wide:hover {
+            background: var(--primary-hover);
+        }
+
+        button.secondary.wide {
+            background: var(--text-dark);
+            color: white;
+        }
+
+        button.secondary.wide:hover {
+            background: #000000;
+        }
+
+        button.wide:active {
+            transform: scale(0.98);
+        }
+
+        .recovery-link {
+            font-size: 0.85rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-top: 1rem;
+            display: inline-block;
+            font-weight: 500;
+        }
+
+        .recovery-link:hover {
+            text-decoration: underline;
+        }
+
+        .auth-switch-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 1.25rem;
+            text-align: center;
+        }
+
+        .auth-switch-text label {
+            color: var(--primary-color);
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* Thông báo Alert */
+        .alert {
+            position: absolute;
+            top: -20px;
+            left: 2.5rem;
+            right: 2.5rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 500;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .alert.success { background: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; }
+        .alert.danger { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+    </style>
+</head>
+<body class="auth-page customer-auth-page">
+<main class="auth-shell customer-flip-shell">
+    
+    <!-- BANNER TRÁI -->
+    <section class="brand-panel">
+        <div class="brand-mark">CM</div>
+        <p class="eyebrow">Customer menu</p>
+        <h1>Đặt món<br>nhanh hơn</h1>
+        <p class="lead">Khách hàng dùng số điện thoại làm tài khoản, đăng nhập bằng mật khẩu để xem menu và gửi đơn cho quầy.</p>
+        <div class="feature-grid">
+            <span>Tài khoản là SĐT</span>
+            <span>Có mật khẩu riêng</span>
+            <span>Lọc theo danh mục</span>
+            <span>Thanh toán tại quầy</span>
+        </div>
+    </section>
+
+    <!-- KHỐI FORM ĐĂNG NHẬP / ĐĂNG KÝ ĐỒNG BỘ MÀU -->
+    <section class="auth-card flip-auth-card">
+        <div th:if="${success}" class="alert success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert danger" th:text="${error}"></div>
+        
+        <input class="flip-toggle" id="customer-register-mode" type="checkbox">
+        
+        <div class="flip-card-stage">
+            <div class="flip-card-inner customer-flip-card-inner">
+                
+                <!-- MẶT TRƯỚC: FORM ĐĂNG NHẬP -->
+                <section class="flip-face login-section">
+                    <p class="eyebrow">Đã có tài khoản</p>
+                    <h2>Đăng nhập</h2>
+                    <p class="section-note">Vào menu và tiếp tục đặt món bằng số điện thoại.</p>
+                    
+                    <form th:action="@{/login/customer}" method="post" class="form-stack">
+                        <label>Số điện thoại
+                            <input name="phone" inputmode="numeric" autocomplete="username" placeholder="Ví dụ: 0901234567" required>
+                        </label>
+                        <label>Mật khẩu
+                            <input name="password" type="password" autocomplete="current-password" placeholder="Nhập mật khẩu" required>
+                        </label>
+                        <button class="primary wide" type="submit">Đăng nhập và xem menu</button>
+                    </form>
+                    
+                    <div>
+                        <a class="recovery-link" th:href="@{/forgot-password/customer}">Quên mật khẩu? Nhận mã xác thực</a>
+                    </div>
+                    <p class="auth-switch-text">Chưa có tài khoản? <label for="customer-register-mode">Đăng ký ngay</label></p>
+                </section>
+
+                <!-- MẶT SAU: FORM ĐĂNG KÝ -->
+                <section class="flip-face flip-face-back register-section">
+                    <p class="eyebrow">Khách mới</p>
+                    <h2>Tạo tài khoản</h2>
+                    <p class="section-note">Mã OTP sẽ được gửi về email của bạn.</p>
+                    
+                    <form th:action="@{/register}" method="post" th:object="${customer}" class="form-stack compact-register-form">
+                        <div class="field-row">
+                            <label>Họ tên
+                                <input th:field="*{fullName}" autocomplete="name" placeholder="Nguyễn Văn A" required>
+                            </label>
+                            <label>Số điện thoại
+                                <input th:field="*{phone}" inputmode="numeric" autocomplete="username" placeholder="0901234567" required>
+                            </label>
+                        </div>
+                        <div class="field-row">
+                            <label>Email xác thực
+                                <input th:field="*{email}" type="email" autocomplete="email" placeholder="email@example.com" required>
+                            </label>
+                            <label>Mật khẩu
+                                <input th:field="*{password}" type="password" autocomplete="new-password" minlength="4" placeholder="Tối thiểu 4 ký tự" required>
+                            </label>
+                        </div>
+                        <label>Địa chỉ giao hàng
+                            <textarea th:field="*{address}" rows="2" placeholder="Địa chỉ nhận hàng (có thể bổ sung sau)"></textarea>
+                        </label>
+                        <button class="secondary wide" type="submit">Gửi OTP và đăng ký</button>
+                    </form>
+                    <p class="auth-switch-text">Đã có tài khoản? <label for="customer-register-mode">Quay lại đăng nhập</label></p>
+                </section>
+                
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tổng quan quản trị</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20260524-dashboard-share')}">
+</head>
+<body class="admin-body">
+<div class="app-shell">
+    <aside class="sidebar">
+        <a class="sidebar-brand" th:href="@{/admin/dashboard}">
+            <span class="brand-symbol">CM</span>
+            <span><strong>Cafe Manager</strong><small>Admin workspace</small></span>
+        </a>
+        <nav class="side-nav">
+            <a th:classappend="${activePage == 'dashboard'} ? ' active'" th:href="@{/admin/dashboard}"><span class="nav-icon">01</span>Dashboard</a>
+            <a th:classappend="${activePage == 'overview'} ? ' active'" th:href="@{/admin}"><span class="nav-icon">02</span>Tổng quan</a>
+            <a th:classappend="${activePage == 'products'} ? ' active'" th:href="@{/admin/products}"><span class="nav-icon">03</span>Sản phẩm</a>
+            <a th:classappend="${activePage == 'staff'} ? ' active'" th:href="@{/admin/staff}"><span class="nav-icon">04</span>Nhân viên</a>
+            <a th:classappend="${activePage == 'orders'} ? ' active'" th:href="@{/admin/orders}"><span class="nav-icon">05</span>Đơn hàng</a>
+            <a th:classappend="${activePage == 'customers'} ? ' active'" th:href="@{/admin/customers}"><span class="nav-icon">06</span>Khách hàng</a>
+        </nav>
+        <div class="sidebar-footer">
+            <span>Đăng nhập bởi</span>
+            <strong th:text="${fullName}">Admin</strong>
+            <form th:action="@{/logout}" method="post">
+                <button class="ghost wide" type="submit">Đăng xuất</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="admin-main wide-admin">
+        <div th:if="${success}" class="alert success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert danger" th:text="${error}"></div>
+        <div th:if="${loadError}" class="alert danger" th:text="'Lỗi tải dữ liệu: ' + ${loadError}"></div>
+
+        <section class="dashboard-hero airy">
+            <div>
+                <p class="eyebrow">Tổng quan</p>
+                <h1>Phân tích vận hành quán cafe</h1>
+                <p>Theo dõi doanh thu, đơn hàng, món bán chạy và các chỉ số vận hành quan trọng trong một màn hình rộng rãi.</p>
+            </div>
+            <div class="hero-actions">
+                <a class="ghost" th:href="@{/admin/products}">Quản lý menu</a>
+                <a class="primary" th:href="@{/admin/orders}">Xem đơn hàng</a>
+            </div>
+        </section>
+
+        <section class="metric-grid big">
+            <article class="metric-card revenue">
+                <span>Doanh thu hôm nay</span>
+                <strong th:text="${#numbers.formatDecimal(todayRevenue ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VND'">0 VND</strong>
+                <small th:text="${todayOrders ?: 0} + ' đơn đã thanh toán trong ngày'">0 đơn</small>
+            </article>
+            <article class="metric-card">
+                <span>Tổng doanh thu</span>
+                <strong th:text="${#numbers.formatDecimal(totalRevenue ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VND'">0 VND</strong>
+                <small>Dựa trên toàn bộ đơn đã thanh toán</small>
+            </article>
+            <article class="metric-card">
+                <span>Giá trị đơn trung bình</span>
+                <strong th:text="${#numbers.formatDecimal(averageOrderValue ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VND'">0 VND</strong>
+                <small th:text="${paidOrders ?: 0} + ' đơn đã hoàn tất'">0 đơn</small>
+            </article>
+            <article class="metric-card">
+                <span>Đơn khách đang chờ</span>
+                <strong th:text="${pendingOrdersCount ?: 0}">0</strong>
+                <small>Cần nhân viên kiểm tra và thanh toán</small>
+            </article>
+        </section>
+
+        <section class="data-panel full-panel">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Gần đây</p>
+                    <h2>Đơn hàng mới nhất</h2>
+                </div>
+            </div>
+            <div class="table-card spacious">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Khách/Bàn</th>
+                        <th>Nhân viên</th>
+                        <th>Thời gian</th>
+                        <th>Tổng</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(recentOrders)}">
+                        <td colspan="6" class="empty-state">Chưa có đơn gần đây.</td>
+                    </tr>
+                    <tr th:each="order : ${recentOrders}">
+                        <td><strong th:text="'#' + ${order.orderId}">#1</strong></td>
+                        <td th:text="${order.customerName != null ? order.customerName : (order.tableName != null ? order.tableName : 'Không rõ')}">Khách</td>
+                        <td th:text="${order.userName != null ? order.userName : 'Chưa thanh toán'}">Staff</td>
+                        <td th:text="${order.orderTimeText}">Time</td>
+                        <td th:text="${order.totalFormatted}">0 VND</td>
+                        <td><span class="badge" th:classappend="${order.status == 'paid'} ? ' ok' : ' muted'" th:text="${order.statusText}">Đã thanh toán</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

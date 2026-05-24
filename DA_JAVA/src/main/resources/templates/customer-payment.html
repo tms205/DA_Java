@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Thanh toán đơn hàng</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20260524-customer-security')}">
+</head>
+<body class="customer-page payment-page">
+<header class="topbar customer-topbar">
+    <a class="brand-link customer-brand" th:href="@{/customer/menu}">
+        <span class="customer-brand-mark">CM</span>
+        <span><strong>Cafe Menu</strong><small>Thanh toán đơn hàng</small></span>
+    </a>
+    <nav>
+        <a th:href="@{/customer/menu}">Thực đơn</a>
+        <a class="active">Thanh toán</a>
+    </nav>
+    <form class="customer-account-bar" th:action="@{/logout}" method="post">
+        <span class="customer-account-copy"><small>Khách hàng</small><strong th:text="${fullName}">Customer</strong></span>
+        <button class="link-button" type="submit">Đăng xuất</button>
+    </form>
+</header>
+
+<main class="page payment-layout">
+    <section class="payment-summary-panel">
+        <p class="eyebrow" th:text="${paymentSelected} ? (${qrPayment} ? 'Thanh toán QR' : 'Thanh toán tại quầy') : 'Chọn thanh toán'">Thanh toán</p>
+        <h1 th:text="'Đơn #' + ${order.orderId}">Đơn #1</h1>
+        <p th:unless="${paymentSelected}">Chọn cách nhận hàng và phương thức thanh toán để tiếp tục.</p>
+        <p th:if="${paymentSelected and qrPayment}">Quét mã QR bằng ứng dụng ngân hàng hoặc ví điện tử. Sau khi chuyển khoản, nhân viên sẽ kiểm tra và xác nhận đơn.</p>
+        <p th:if="${paymentSelected and !qrPayment}">Đơn đã được gửi đến quầy. Vui lòng thanh toán tiền mặt khi nhận món.</p>
+
+        <div class="payment-amount-box">
+            <span>Số tiền cần thanh toán</span>
+            <strong th:text="${order.totalFormatted}">0 VND</strong>
+        </div>
+
+        <form th:unless="${paymentSelected}" th:action="@{/customer/payment/{id}/method(id=${order.orderId})}" method="post" class="payment-method-form">
+            <div class="choice-stack">
+                <label class="option-card">
+                    <input type="radio" name="orderType" value="takeaway" th:checked="${order.orderType != 'delivery'}">
+                    <span>
+                        <strong>Nhận tại quầy</strong>
+                        <small>Phù hợp khi bạn đang ở quán hoặc muốn tự đến lấy.</small>
+                    </span>
+                </label>
+                <label class="option-card">
+                    <input type="radio" name="orderType" value="delivery" th:checked="${order.orderType == 'delivery'}">
+                    <span>
+                        <strong>Giao tận nhà</strong>
+                        <small>Cần địa chỉ chi tiết để nhân viên chuẩn bị giao hàng.</small>
+                    </span>
+                </label>
+            </div>
+
+            <label class="delivery-address-field" hidden>Địa chỉ giao hàng
+                <textarea name="deliveryAddress"
+                          rows="3"
+                          th:text="${order.deliveryAddress != null && !order.deliveryAddress.isBlank() ? order.deliveryAddress : customerAddress}"
+                          placeholder="Số nhà, tên đường, phường/xã, quận/huyện, ghi chú nhận hàng"></textarea>
+            </label>
+
+            <div class="choice-stack">
+                <label class="option-card">
+                    <input type="radio" name="paymentMethod" value="momo" checked>
+                    <span>
+                        <strong>Thanh toán QR MoMo</strong>
+                        <small>Tạo mã QR đúng số tiền và nội dung mã đơn.</small>
+                    </span>
+                </label>
+                <label class="option-card cash-option">
+                    <input type="radio" name="paymentMethod" value="cash">
+                    <span>
+                        <strong>Tiền mặt tại quầy</strong>
+                        <small>Nhân viên sẽ xử lý và xác nhận khi bạn thanh toán.</small>
+                    </span>
+                </label>
+            </div>
+            <button class="primary wide" type="submit">Tiếp tục thanh toán</button>
+        </form>
+
+        <div class="payment-info-list">
+            <div><span>Thời gian đặt</span><strong th:text="${order.orderTimeText}">14/05/2026 16:05</strong></div>
+            <div th:if="${paymentSelected and qrPayment}"><span>Ví MoMo nhận tiền</span><strong th:text="${momoWalletPhone}">0769479813</strong></div>
+            <div th:if="${paymentSelected and qrPayment}"><span>Nội dung</span><strong th:text="${paymentContent}">DON1</strong></div>
+            <div><span>Nhận hàng</span><strong th:text="${order.orderTypeText}">Nhận tại quầy</strong></div>
+            <div th:if="${order.deliveryAddress != null && !order.deliveryAddress.isBlank()}"><span>Địa chỉ giao</span><strong th:text="${order.deliveryAddress}">Địa chỉ</strong></div>
+            <div th:if="${paymentSelected}"><span>Phương thức</span><strong th:text="${order.requestedPaymentMethodText}">MoMo QR</strong></div>
+            <div><span>Khách hàng</span><strong th:text="${order.customerName}">Khách hàng</strong></div>
+            <div><span>Trạng thái</span><strong th:text="${order.statusText}">Chờ thanh toán</strong></div>
+        </div>
+
+        <form th:if="${paymentSelected and qrPayment}" th:action="@{/customer/payment/{id}/confirm(id=${order.orderId})}" method="post">
+            <button class="primary wide" type="submit">Tôi đã thanh toán</button>
+        </form>
+        <a class="ghost wide" th:href="@{/customer/menu}">Quay lại menu</a>
+    </section>
+
+    <section class="qr-panel" th:if="${paymentSelected and qrPayment}">
+        <div class="qr-card">
+            <img th:src="@{/customer/payment/{id}/qr(id=${order.orderId})}" alt="Mã QR thanh toán">
+        </div>
+        <div class="order-items payment-items">
+            <div class="order-item" th:each="item : ${order.details}">
+                <span th:text="${item.productName}">Món</span>
+                <small th:text="'x' + ${item.quantity}">x1</small>
+                <strong th:text="${item.subtotalFormatted}">0 VND</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="qr-panel cash-payment-panel" th:if="${paymentSelected and !qrPayment}">
+        <div class="cash-instruction-card">
+            <p class="eyebrow">Tiền mặt</p>
+            <h2>Thanh toán tại quầy</h2>
+            <p>Nhân viên đã nhận được đơn và phương thức thanh toán tiền mặt. Khi đến quầy, bạn chỉ cần đọc mã đơn.</p>
+            <strong th:text="'#' + ${order.orderId}">#1</strong>
+        </div>
+        <div class="order-items payment-items">
+            <div class="order-item" th:each="item : ${order.details}">
+                <span th:text="${item.productName}">Món</span>
+                <small th:text="'x' + ${item.quantity}">x1</small>
+                <strong th:text="${item.subtotalFormatted}">0 VND</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="qr-panel payment-pending-panel" th:unless="${paymentSelected}">
+        <div class="cash-instruction-card">
+            <p class="eyebrow">Giỏ hàng</p>
+            <h2>Kiểm tra món</h2>
+            <p>Danh sách món đã chọn của bạn nằm bên cạnh. Chọn cách nhận hàng và phương thức thanh toán để hoàn tất.</p>
+            <strong th:text="${order.totalFormatted}">0 VND</strong>
+        </div>
+        <div class="order-items payment-items">
+            <div class="order-item" th:each="item : ${order.details}">
+                <span th:text="${item.productName}">Món</span>
+                <small th:text="'x' + ${item.quantity}">x1</small>
+                <strong th:text="${item.subtotalFormatted}">0 VND</strong>
+            </div>
+        </div>
+    </section>
+</main>
+<script>
+    (function () {
+        var deliveryField = document.querySelector(".delivery-address-field");
+        var deliveryInput = deliveryField ? deliveryField.querySelector("textarea") : null;
+        var cashOption = document.querySelector(".cash-option");
+        var cashInput = cashOption ? cashOption.querySelector("input") : null;
+        var momoInput = document.querySelector("input[name='paymentMethod'][value='momo']");
+        var typeInputs = document.querySelectorAll("input[name='orderType']");
+
+        function updateDeliveryMode() {
+            var checkedType = document.querySelector("input[name='orderType']:checked");
+            var delivery = checkedType && checkedType.value === "delivery";
+            if (deliveryField && deliveryInput) {
+                deliveryField.hidden = !delivery;
+                deliveryInput.required = delivery;
+            }
+            if (cashOption && cashInput) {
+                cashInput.disabled = delivery;
+                cashOption.classList.toggle("disabled", delivery);
+            }
+            if (delivery && momoInput) {
+                momoInput.checked = true;
+            }
+        }
+
+        typeInputs.forEach(function (input) {
+            input.addEventListener("change", updateDeliveryMode);
+        });
+        updateDeliveryMode();
+    })();
+</script>
+</body>
+</html>

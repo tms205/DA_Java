@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đơn hàng</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20260524-admin-cards')}">
+</head>
+<body class="admin-body">
+<div class="app-shell">
+    <aside class="sidebar">
+        <a class="sidebar-brand" th:href="@{/admin/dashboard}">
+            <span class="brand-symbol">CM</span>
+            <span><strong>Cafe Manager</strong><small>Admin workspace</small></span>
+        </a>
+        <nav class="side-nav">
+            <a th:href="@{/admin/dashboard}"><span class="nav-icon">01</span>Dashboard</a>
+            <a th:href="@{/admin}"><span class="nav-icon">02</span>Tổng quan</a>
+            <a th:href="@{/admin/products}"><span class="nav-icon">03</span>Sản phẩm</a>
+            <a th:href="@{/admin/staff}"><span class="nav-icon">04</span>Nhân viên</a>
+            <a class="active" th:href="@{/admin/orders}"><span class="nav-icon">05</span>Đơn hàng</a>
+            <a th:href="@{/admin/customers}"><span class="nav-icon">06</span>Khách hàng</a>
+        </nav>
+        <div class="sidebar-footer">
+            <span>Đăng nhập bởi</span>
+            <strong th:text="${fullName}">Admin</strong>
+            <form th:action="@{/logout}" method="post">
+                <button class="ghost wide" type="submit">Đăng xuất</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="admin-main wide-admin">
+        <div th:if="${success}" class="alert success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert danger" th:text="${error}"></div>
+        <div id="order-notification" class="alert success realtime-alert" hidden></div>
+        <div th:if="${loadError}" class="alert danger" th:text="'Lỗi tải dữ liệu: ' + ${loadError}"></div>
+
+        <section class="admin-page-head">
+            <div>
+                <p class="eyebrow">Đơn hàng</p>
+                <h1>Theo dõi toàn bộ đơn khách</h1>
+                <p>Admin quan sát đơn đang chờ, hủy đơn sai và xem đầy đủ lịch sử đơn hàng.</p>
+            </div>
+            <div class="hero-actions">
+                <a class="primary" th:href="@{/staff/pos}">Mở POS nhân viên</a>
+            </div>
+        </section>
+
+        <section class="metric-grid">
+            <article class="metric-card revenue"><span>Đơn đang chờ</span><strong th:text="${pendingOrdersCount ?: 0}">0</strong><small>Khách đã gửi, chưa thanh toán</small></article>
+            <article class="metric-card">
+                <span th:text="${orderKeyword != null and !orderKeyword.isBlank()} ? 'Kết quả lịch sử' : 'Tất cả đơn hàng'">Tất cả đơn hàng</span>
+                <strong th:text="${allOrderCount ?: 0}">0</strong>
+                <small th:text="${orderKeyword != null and !orderKeyword.isBlank()} ? 'Theo nội dung tìm kiếm hiện tại' : 'Bao gồm chờ, đã thanh toán, đã hủy'">Bao gồm chờ, đã thanh toán, đã hủy</small>
+            </article>
+            <article class="metric-card"><span>Phương thức thanh toán</span><strong th:text="${paymentMethodCount ?: 0}">0</strong><small>Cash, MoMo, chuyển khoản</small></article>
+            <article class="metric-card"><span>Realtime</span><strong>ON</strong><small>Staff POS nhận thông báo SSE</small></article>
+        </section>
+
+        <section class="analytics-grid">
+            <article class="data-panel full-panel">
+                <div class="panel-heading">
+                    <div><p class="eyebrow">Cần xử lý</p><h2>Đơn khách đang chờ</h2></div>
+                </div>
+                <div class="order-list admin-orders-list">
+                    <article th:if="${#lists.isEmpty(pendingOrders)}" class="empty-state">Chưa có đơn khách nào đang chờ thanh toán.</article>
+                    <article class="order-card" th:each="order : ${pendingOrders}">
+                        <div class="order-card-head">
+                            <div>
+                                <p class="eyebrow" th:text="'Đơn #' + ${order.orderId}">Đơn #1</p>
+                                <h2 th:text="${order.customerName != null ? order.customerName : 'Khách hàng'}">Khách hàng</h2>
+                                <p class="hint" th:text="${order.customerNote != null && !order.customerNote.isBlank() ? order.customerNote : 'Không có ghi chú'}">Ghi chú</p>
+                                <p class="order-time-line" th:text="'Thời gian đặt: ' + ${order.orderTimeText}">Thời gian đặt</p>
+                                <div class="staff-order-tags">
+                                    <span th:text="${order.orderTypeText}">Nhận tại quầy</span>
+                                    <span th:text="${order.requestedPaymentMethodText}">MoMo QR</span>
+                                </div>
+                                <p class="delivery-note"
+                                   th:if="${order.deliveryAddress != null && !order.deliveryAddress.isBlank()}"
+                                   th:text="'Giao đến: ' + ${order.deliveryAddress}">Giao đến</p>
+                            </div>
+                            <div class="order-admin-actions">
+                                <strong th:text="${order.totalFormatted}">0 VND</strong>
+                                <form th:action="@{/admin/orders/{id}/cancel(id=${order.orderId})}" method="post"
+                                      onsubmit="return confirm('Hủy đơn này?');">
+                                    <button class="danger-button small" type="submit">Hủy đơn</button>
+                                </form>
+                                <form th:action="@{/admin/orders/{id}/delete(id=${order.orderId})}" method="post"
+                                      onsubmit="return confirm('Ẩn đơn này khỏi phần mềm? Dữ liệu đơn hàng vẫn được lưu trong database.');">
+                                    <button class="danger-button small" type="submit">Xóa khỏi danh sách</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="order-items">
+                            <div class="order-item" th:each="item : ${order.details}">
+                                <span th:text="${item.productName}">Món</span>
+                                <small th:text="'x' + ${item.quantity}">x1</small>
+                                <strong th:text="${item.subtotalFormatted}">0 VND</strong>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </article>
+
+            <article class="data-panel">
+                <div class="panel-heading">
+                    <div><p class="eyebrow">Thanh toán</p><h2>Cơ cấu phương thức</h2></div>
+                </div>
+                <div class="bar-chart">
+                    <div th:if="${#lists.isEmpty(paymentStats)}" class="empty-state">Chưa có dữ liệu thanh toán.</div>
+                    <div class="bar-row" th:each="item : ${paymentStats}">
+                        <span th:text="${item.label}">cash</span>
+                        <div class="bar-track accent"><div class="bar-fill" th:style="${item.percentStyle}"></div></div>
+                        <strong th:text="${item.amountFormatted}">0 VND</strong>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <section class="data-panel full-panel">
+            <div class="panel-heading">
+                <div><p class="eyebrow">Lịch sử</p><h2>Tất cả đơn hàng</h2></div>
+                <form class="search-box order-history-search" th:action="@{/admin/orders}" method="get">
+                    <input name="orderKeyword" th:value="${orderKeyword}" placeholder="Mã đơn, khách, SĐT, email, nhân viên, trạng thái">
+                    <button type="submit">Tìm</button>
+                    <a class="ghost small" th:if="${orderKeyword != null and !orderKeyword.isBlank()}" th:href="@{/admin/orders}">Xóa lọc</a>
+                </form>
+            </div>
+            <p class="history-filter-note" th:if="${orderKeyword != null and !orderKeyword.isBlank()}"
+               th:text="'Kết quả tìm kiếm cho: ' + ${orderKeyword}">Kết quả tìm kiếm</p>
+            <div class="all-order-list">
+                <article th:if="${#lists.isEmpty(allOrders)}" class="empty-state">Không có đơn hàng phù hợp.</article>
+                <article class="all-order-card" th:each="order : ${allOrders}">
+                    <div class="all-order-summary">
+                        <div>
+                            <p class="eyebrow" th:text="'Đơn #' + ${order.orderId}">Đơn #1</p>
+                            <h3 th:text="${order.customerName != null ? order.customerName : (order.tableName != null ? order.tableName : 'Khách vãng lai')}">Khách hàng</h3>
+                            <p class="hint" th:text="${order.customerNote != null && !order.customerNote.isBlank() ? order.customerNote : 'Không có ghi chú'}">Ghi chú</p>
+                        </div>
+                        <div class="all-order-total">
+                            <strong th:text="${order.totalFormatted}">0 VND</strong>
+                            <span class="badge" th:classappend="${order.status == 'paid'} ? ' ok' : (${order.status == 'cancelled'} ? ' danger' : ' muted')" th:text="${order.statusText}">Đã thanh toán</span>
+                        </div>
+                    </div>
+
+                    <div class="order-info-grid">
+                        <div><span>Khách/Bàn</span><strong th:text="${order.customerName != null ? order.customerName : (order.tableName != null ? order.tableName : 'Không rõ')}">Khách</strong></div>
+                        <div><span>Số điện thoại</span><strong th:text="${order.customerPhone != null ? order.customerPhone : '-'}">-</strong></div>
+                        <div><span>Email</span><strong th:text="${order.customerEmail != null ? order.customerEmail : '-'}">-</strong></div>
+                        <div><span>Địa chỉ khách</span><strong th:text="${order.customerAddress != null ? order.customerAddress : '-'}">-</strong></div>
+                        <div><span>Nhân viên</span><strong th:text="${order.userName != null ? order.userName : 'Chưa xử lý'}">Nhân viên</strong></div>
+                        <div><span>Thời gian đặt</span><strong th:text="${order.orderTimeText}">Time</strong></div>
+                        <div><span>Loại đơn</span><strong th:text="${order.orderTypeText}">Nhận tại quầy</strong></div>
+                        <div><span>Khách chọn thanh toán</span><strong th:text="${order.requestedPaymentMethodText}">Chưa chọn</strong></div>
+                        <div><span>Đã thanh toán bằng</span><strong th:text="${order.paymentMethodText}">Chưa thanh toán</strong></div>
+                        <div><span>Thời gian thanh toán</span><strong th:text="${order.paymentTimeText}">-</strong></div>
+                        <div><span>Số tiền đã thu</span><strong th:text="${order.amountPaidFormatted}">0 VND</strong></div>
+                    </div>
+
+                    <p class="delivery-note"
+                       th:if="${order.deliveryAddress != null && !order.deliveryAddress.isBlank()}"
+                       th:text="'Giao đến: ' + ${order.deliveryAddress}">Giao đến</p>
+
+                    <div class="order-items all-order-items">
+                        <div th:if="${#lists.isEmpty(order.details)}" class="empty-state compact">Chưa có món trong đơn.</div>
+                        <div class="order-item" th:each="item : ${order.details}">
+                            <span th:text="${item.productName}">Món</span>
+                            <small th:text="'x' + ${item.quantity} + ' · ' + ${item.priceFormatted}">x1</small>
+                            <strong th:text="${item.subtotalFormatted}">0 VND</strong>
+                        </div>
+                    </div>
+
+                    <div class="all-order-actions">
+                        <form th:if="${order.status == 'pending'}"
+                              th:action="@{/admin/orders/{id}/cancel(id=${order.orderId})}"
+                              method="post"
+                              onsubmit="return confirm('Hủy đơn này?');">
+                            <button class="danger-button small" type="submit">Hủy đơn</button>
+                        </form>
+                        <form th:action="@{/admin/orders/{id}/delete(id=${order.orderId})}"
+                              method="post"
+                              onsubmit="return confirm('Ẩn đơn này khỏi phần mềm? Dữ liệu đơn hàng vẫn được lưu trong database.');">
+                            <button class="danger-button small" type="submit">Xóa khỏi danh sách</button>
+                        </form>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+</div>
+<script>
+    (function () {
+        var alertBox = document.getElementById("order-notification");
+        if (!alertBox || !window.EventSource) {
+            return;
+        }
+
+        var stream = new EventSource("/staff/orders/stream");
+        var reloadSoon = function (message, delay) {
+            alertBox.textContent = message;
+            alertBox.hidden = false;
+            window.setTimeout(function () {
+                window.location.reload();
+            }, delay);
+        };
+
+        stream.addEventListener("new-order", function (event) {
+            var order = JSON.parse(event.data);
+            reloadSoon("Có đơn mới #" + order.orderId + ". Đang cập nhật lịch sử...", 1200);
+        });
+
+        stream.addEventListener("order-updated", function (event) {
+            var order = JSON.parse(event.data);
+            reloadSoon("Đơn #" + order.orderId + " đã đổi trạng thái. Đang cập nhật lịch sử...", 1000);
+        });
+
+        stream.onerror = function () {
+            stream.close();
+        };
+    })();
+</script>
+</body>
+</html>

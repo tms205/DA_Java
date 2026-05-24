@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Xác thực đăng ký</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20260524-customer-security')}">
+</head>
+<body class="auth-page">
+<main class="auth-shell narrow">
+    <section class="auth-card focused-auth-card">
+        <a class="back-link" th:href="@{/login/customer}">← Quay lại đăng nhập</a>
+        <div th:if="${success}" class="alert success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert danger" th:text="${error}"></div>
+        <p class="eyebrow">Xác thực email</p>
+        <h2>Hoàn tất đăng ký</h2>
+        <p class="lead">Nhập mã OTP 6 số đã gửi tới email của bạn. Mã có hiệu lực trong 5 phút.</p>
+        <form th:action="@{/register/verify}" method="post" class="form-stack otp-form" data-otp-form>
+            <span class="otp-field-label">Mã OTP gồm 6 số</span>
+            <div class="otp-code-input" aria-label="Mã OTP">
+                <input data-otp-digit inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Số thứ 1" required autofocus>
+                <input data-otp-digit inputmode="numeric" maxlength="1" aria-label="Số thứ 2" required>
+                <input data-otp-digit inputmode="numeric" maxlength="1" aria-label="Số thứ 3" required>
+                <input data-otp-digit inputmode="numeric" maxlength="1" aria-label="Số thứ 4" required>
+                <input data-otp-digit inputmode="numeric" maxlength="1" aria-label="Số thứ 5" required>
+                <input data-otp-digit inputmode="numeric" maxlength="1" aria-label="Số thứ 6" required>
+            </div>
+            <input type="hidden" name="otp" data-otp-value>
+            <p class="otp-help">Bạn có thể dán trực tiếp mã gồm 6 số vào một ô bất kỳ.</p>
+            <button class="primary wide" type="submit">Xác nhận và tạo tài khoản</button>
+        </form>
+        <form th:action="@{/register/resend}" method="post" class="form-stack">
+            <button class="ghost wide" type="submit">Gửi lại mã OTP</button>
+        </form>
+    </section>
+</main>
+<script th:src="@{/js/otp-input.js(v='20260524')}" defer></script>
+</body>
+</html>

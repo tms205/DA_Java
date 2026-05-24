@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản lý sản phẩm</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20260524-product-upload')}">
+</head>
+<body class="admin-body">
+<div class="app-shell">
+    <aside class="sidebar">
+        <a class="sidebar-brand" th:href="@{/admin/dashboard}">
+            <span class="brand-symbol">CM</span>
+            <span><strong>Cafe Manager</strong><small>Admin workspace</small></span>
+        </a>
+        <nav class="side-nav">
+            <a th:href="@{/admin/dashboard}"><span class="nav-icon">01</span>Dashboard</a>
+            <a th:href="@{/admin}"><span class="nav-icon">02</span>Tổng quan</a>
+            <a class="active" th:href="@{/admin/products}"><span class="nav-icon">03</span>Sản phẩm</a>
+            <a th:href="@{/admin/staff}"><span class="nav-icon">04</span>Nhân viên</a>
+            <a th:href="@{/admin/orders}"><span class="nav-icon">05</span>Đơn hàng</a>
+            <a th:href="@{/admin/customers}"><span class="nav-icon">06</span>Khách hàng</a>
+        </nav>
+        <div class="sidebar-footer">
+            <span>Đăng nhập bởi</span>
+            <strong th:text="${fullName}">Admin</strong>
+            <form th:action="@{/logout}" method="post">
+                <button class="ghost wide" type="submit">Đăng xuất</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="admin-main wide-admin">
+        <div th:if="${success}" class="alert success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert danger" th:text="${error}"></div>
+        <div th:if="${loadError}" class="alert danger" th:text="'Lỗi tải dữ liệu: ' + ${loadError}"></div>
+
+        <section class="admin-page-head">
+            <div>
+                <p class="eyebrow">Sản phẩm</p>
+                <h1>Menu và phân tích sản phẩm</h1>
+                <p>Theo dõi danh mục, trạng thái bán và các món có hiệu quả cao.</p>
+            </div>
+            <form th:action="@{/admin/products}" method="get" class="search-box large">
+                <input name="productKeyword" th:value="${param.productKeyword}" placeholder="Tìm món hoặc danh mục">
+                <button type="submit">Tìm</button>
+            </form>
+        </section>
+
+        <section class="metric-grid">
+            <article class="metric-card"><span>Tất cả sản phẩm</span><strong th:text="${productCount ?: 0}">0</strong><small>Bao gồm món đang bán và đã ẩn</small></article>
+            <article class="metric-card"><span>Đang bán</span><strong th:text="${availableProductCount ?: 0}">0</strong><small>Hiển thị trên menu khách hàng</small></article>
+            <article class="metric-card"><span>Đã ẩn</span><strong th:text="${hiddenProductCount ?: 0}">0</strong><small>Không còn nhận đơn mới</small></article>
+            <article class="metric-card"><span>Danh mục</span><strong th:text="${categoryCount ?: 0}">0</strong><small>Nhóm sản phẩm đang quản lý</small></article>
+        </section>
+
+        <section class="analytics-grid">
+            <article class="data-panel chart-panel">
+                <div class="panel-heading">
+                    <div><p class="eyebrow">Danh mục</p><h2>Phân bổ sản phẩm đang bán</h2></div>
+                </div>
+                <div class="bar-chart">
+                    <div th:if="${#lists.isEmpty(categoryStats)}" class="empty-state">Chưa có dữ liệu danh mục.</div>
+                    <div class="bar-row" th:each="item : ${categoryStats}">
+                        <span th:text="${item.label}">Coffee</span>
+                        <div class="bar-track"><div class="bar-fill" th:style="${item.percentStyle}"></div></div>
+                        <strong th:text="${item.count} + ' món'">0 món</strong>
+                    </div>
+                </div>
+            </article>
+            <article class="data-panel chart-panel">
+                <div class="panel-heading">
+                    <div><p class="eyebrow">Bán chạy</p><h2>Top món theo số lượng</h2></div>
+                </div>
+                <div class="product-leaderboard compact">
+                    <div th:if="${#lists.isEmpty(topProducts)}" class="empty-state">Chưa có dữ liệu bán hàng.</div>
+                    <article class="product-rank-card" th:each="item, stat : ${topProducts}">
+                        <span class="rank-number" th:text="${stat.count}">1</span>
+                        <img th:src="${item.displayImageUrl}" th:alt="${item.name}">
+                        <div class="product-rank-body">
+                            <div><strong th:text="${item.name}">Latte</strong><small th:text="${item.categoryName != null ? item.categoryName : 'Chưa phân loại'}">Coffee</small></div>
+                            <div class="sales-meta"><span><b th:text="${item.quantity}">0</b> món</span><span th:text="${item.revenueFormatted}">0 VND</span></div>
+                            <div class="sales-progress"><span th:style="${item.percentStyle}"></span></div>
+                        </div>
+                    </article>
+                </div>
+            </article>
+        </section>
+
+        <section class="data-panel full-panel">
+            <div class="panel-heading">
+                <div><p class="eyebrow">Cập nhật menu</p><h2>Thêm sản phẩm</h2></div>
+            </div>
+            <form th:action="@{/admin/products}" method="post" enctype="multipart/form-data" th:object="${product}" class="editor-form product-editor">
+                <input type="hidden" th:field="*{available}" value="true">
+                <label>Tên món<input th:field="*{name}" placeholder="Ví dụ: Bạc xỉu đá" required></label>
+                <label>Giá bán<input th:field="*{price}" type="number" min="0" step="1000" placeholder="35000" required></label>
+                <label>Danh mục
+                    <select th:field="*{categoryId}" required>
+                        <option value="">Chọn danh mục</option>
+                        <option th:each="category : ${categories}" th:value="${category.categoryId}" th:text="${category.name}"></option>
+                    </select>
+                </label>
+                <label>Ảnh sản phẩm<input type="file" name="imageFile" accept="image/png,image/jpeg,image/webp,image/gif"></label>
+                <button class="primary" type="submit">Thêm món</button>
+            </form>
+        </section>
+
+        <section class="data-panel full-panel">
+            <div class="panel-heading">
+                <div><p class="eyebrow">Sửa / xóa</p><h2>Danh sách sản phẩm</h2></div>
+            </div>
+            <div class="management-card-grid product-management-grid">
+                <article th:if="${#lists.isEmpty(products)}" class="empty-state">Chưa có sản phẩm phù hợp.</article>
+                <article class="management-card product-management-card" th:each="item : ${products}">
+                    <div class="management-card-head">
+                        <img class="table-product-image large" th:src="${item.displayImageUrl}" th:alt="${item.name}">
+                        <div>
+                            <p class="eyebrow" th:text="'Món #' + ${item.productId}">Món #1</p>
+                            <h3 th:text="${item.name}">Latte</h3>
+                            <span class="badge" th:classappend="${item.available} ? ' ok' : ' muted'" th:text="${item.available} ? 'Đang bán' : 'Đã ẩn'">Đang bán</span>
+                        </div>
+                    </div>
+                    <form th:id="'product-edit-' + ${item.productId}" th:action="@{/admin/products}" method="post" enctype="multipart/form-data" class="management-fields">
+                        <input type="hidden" name="productId" th:value="${item.productId}">
+                        <input type="hidden" name="imageUrl" th:value="${item.imageUrl}">
+                        <label>Tên món<input name="name" th:value="${item.name}" required></label>
+                        <label>Danh mục
+                            <select name="categoryId" required>
+                                <option th:each="category : ${categories}"
+                                        th:value="${category.categoryId}"
+                                        th:selected="${item.categoryId == category.categoryId}"
+                                        th:text="${category.name}">Coffee</option>
+                            </select>
+                        </label>
+                        <label>Giá<input name="price" type="number" min="0" step="1000" th:value="${item.price}" required></label>
+                        <label>Đổi ảnh<input type="file" name="imageFile" accept="image/png,image/jpeg,image/webp,image/gif"></label>
+                        <label>Trạng thái
+                            <select name="available">
+                                <option value="true" th:selected="${item.available}">Đang bán</option>
+                                <option value="false" th:selected="${!item.available}">Đã ẩn</option>
+                            </select>
+                        </label>
+                    </form>
+                    <div class="management-actions">
+                        <button class="primary small" type="submit" th:attr="form='product-edit-' + ${item.productId}">Lưu</button>
+                        <form th:action="@{/admin/products/{id}/delete(id=${item.productId})}" method="post"
+                              onsubmit="return confirm('Xóa món này khỏi menu khách hàng?');">
+                            <button class="danger-button small" type="submit">Xóa</button>
+                        </form>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>
