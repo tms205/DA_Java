@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Quản lý nhân viên</title>
-    <link rel="stylesheet" th:href="@{/css/app.css(v='20260524-admin-cards')}">
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20260603-footer')}">
 </head>
 <body class="admin-body">
 <div class="app-shell">
@@ -17,6 +17,7 @@
             <a class="active" th:href="@{/admin/staff}"><span class="nav-icon">04</span>Nhân viên</a>
             <a th:href="@{/admin/orders}"><span class="nav-icon">05</span>Đơn hàng</a>
             <a th:href="@{/admin/customers}"><span class="nav-icon">06</span>Khách hàng</a>
+            <a th:href="@{/admin/feedback}"><span class="nav-icon">07</span>Phản hồi</a>
         </nav>
         <div class="sidebar-footer"><span>Đăng nhập bởi</span><strong th:text="${fullName}">Admin</strong><form th:action="@{/logout}" method="post"><button class="ghost wide" type="submit">Đăng xuất</button></form></div>
     </aside>
@@ -97,6 +98,43 @@
                 </article>
             </div>
         </section>
+        <footer class="site-footer admin-site-footer">
+            <div class="admin-footer-left">
+                <div class="admin-footer-brand">
+                    <span class="admin-footer-mark">CM</span>
+                    <div>
+                        <strong>Hệ thống Quản trị Cafe Manager</strong>
+                        <p>Bản quyền &copy; 2026 Cafe Manager. Đã đăng ký bản quyền thương hiệu.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="admin-footer-right">
+                <div class="admin-system-info">
+                    <span class="system-badge">Bản phát hành: v1.2.0-stable</span>
+                    <span class="status-indicator-wrap">
+                        <span class="status-dot-active"></span>
+                        Trạng thái: Hoạt động bình thường
+                    </span>
+                </div>
+                <div class="admin-server-time">
+                    <span>Thời gian hệ thống:</span>
+                    <strong id="server-time-display">--/--/---- --:--</strong>
+                </div>
+            </div>
+            <script>
+                (function() {
+                    var updateTime = function() {
+                        var now = new Date();
+                        var pad = function(n) { return n < 10 ? '0' + n : n; };
+                        var display = pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear() + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+                        var el = document.getElementById("server-time-display");
+                        if (el) el.textContent = display;
+                    };
+                    updateTime();
+                    setInterval(updateTime, 30000);
+                })();
+            </script>
+        </footer>
     </main>
 </div>
 </body>

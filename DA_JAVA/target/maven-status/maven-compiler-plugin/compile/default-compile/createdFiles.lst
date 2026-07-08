@@ -1,7 +1,6 @@
 com\huit\da_java\dao\UserDAO.class
 com\huit\da_java\config\WebResourceConfig.class
 com\huit\da_java\model\CategoryShareItem.class
-com\huit\da_java\utils\SessionManager.class
 com\huit\da_java\service\OrderNotificationService.class
 com\huit\da_java\controller\CustomerController.class
 com\huit\da_java\service\OtpService.class
@@ -11,6 +10,7 @@ com\huit\da_java\dao\TableDAO.class
 com\huit\da_java\App.class
 com\huit\da_java\model\StatisticItem.class
 com\huit\da_java\service\VietQrPayloadService$Tlv.class
+com\huit\da_java\dao\FeedbackDAO.class
 com\huit\da_java\dao\CustomerDAO.class
 com\huit\da_java\service\CustomerPasswordService.class
 com\huit\da_java\controller\LoginController$1.class
@@ -23,13 +23,13 @@ com\huit\da_java\service\OtpService$Challenge.class
 com\huit\da_java\service\QrCodeService.class
 com\huit\da_java\database\DatabaseConnection.class
 com\huit\da_java\dao\OrderDAO.class
-com\huit\da_java\utils\PermissionChecker.class
 com\huit\da_java\controller\AdminController.class
 com\huit\da_java\service\ProductImageStorageService.class
 com\huit\da_java\model\Order.class
 com\huit\da_java\model\Customer.class
 com\huit\da_java\service\OrderNotification.class
 com\huit\da_java\model\Category.class
+com\huit\da_java\model\CustomerFeedback.class
 com\huit\da_java\service\OtpService$VerificationResult.class
 com\huit\da_java\dao\ProductDAO.class
 com\huit\da_java\model\Product.class

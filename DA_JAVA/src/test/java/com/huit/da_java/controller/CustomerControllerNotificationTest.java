@@ -1,6 +1,7 @@
 package com.huit.da_java.controller;
 
 import com.huit.da_java.dao.OrderDAO;
+import com.huit.da_java.dao.FeedbackDAO;
 import com.huit.da_java.dao.ProductDAO;
 import com.huit.da_java.model.Order;
 import com.huit.da_java.model.Product;
@@ -65,6 +66,7 @@ class CustomerControllerNotificationTest {
                 "momo",
                 "takeaway",
                 null,
+                null,
                 customerSession(),
                 new RedirectAttributesModelMap());
 
@@ -87,6 +89,7 @@ class CustomerControllerNotificationTest {
                 "momo",
                 "takeaway",
                 null,
+                null,
                 customerSession(),
                 new RedirectAttributesModelMap());
 
@@ -99,6 +102,7 @@ class CustomerControllerNotificationTest {
         return new CustomerController(
                 productDAO,
                 orderDAO,
+                mock(FeedbackDAO.class),
                 notificationService,
                 mock(QrCodeService.class),
                 mock(VietQrPayloadService.class));

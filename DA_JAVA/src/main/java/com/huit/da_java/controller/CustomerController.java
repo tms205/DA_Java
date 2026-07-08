@@ -1,6 +1,7 @@
 package com.huit.da_java.controller;
 
 import com.huit.da_java.dao.OrderDAO;
+import com.huit.da_java.dao.FeedbackDAO;
 import com.huit.da_java.dao.ProductDAO;
 import com.huit.da_java.model.Order;
 import com.huit.da_java.model.OrderDetail;
@@ -33,17 +34,20 @@ public class CustomerController {
 
     private final ProductDAO productDAO;
     private final OrderDAO orderDAO;
+    private final FeedbackDAO feedbackDAO;
     private final OrderNotificationService orderNotificationService;
     private final QrCodeService qrCodeService;
     private final VietQrPayloadService vietQrPayloadService;
 
     public CustomerController(ProductDAO productDAO,
                               OrderDAO orderDAO,
+                              FeedbackDAO feedbackDAO,
                               OrderNotificationService orderNotificationService,
                               QrCodeService qrCodeService,
                               VietQrPayloadService vietQrPayloadService) {
         this.productDAO = productDAO;
         this.orderDAO = orderDAO;
+        this.feedbackDAO = feedbackDAO;
         this.orderNotificationService = orderNotificationService;
         this.qrCodeService = qrCodeService;
         this.vietQrPayloadService = vietQrPayloadService;
@@ -72,6 +76,39 @@ public class CustomerController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("selectedCategoryId", categoryId);
         return "customer-menu";
+    }
+
+    @GetMapping("/customer/feedback")
+    public String feedback(HttpSession session,
+                           Model model,
+                           RedirectAttributes redirectAttributes) {
+        if (!"customer".equals(session.getAttribute("role"))) {
+            redirectAttributes.addFlashAttribute("error", "Bạn cần đăng nhập bằng tài khoản khách hàng.");
+            return "redirect:/login/customer";
+        }
+        model.addAttribute("fullName", session.getAttribute("fullName"));
+        return "customer-feedback";
+    }
+
+    @PostMapping("/customer/feedback")
+    public String submitFeedback(@RequestParam String reason,
+                                 @RequestParam String expectation,
+                                 HttpSession session,
+                                 RedirectAttributes redirectAttributes) {
+        if (!"customer".equals(session.getAttribute("role"))) {
+            redirectAttributes.addFlashAttribute("error", "Bạn cần đăng nhập bằng tài khoản khách hàng.");
+            return "redirect:/login/customer";
+        }
+        try {
+            String normalizedReason = normalizeFeedbackText(reason, 500, "Lý do góp ý");
+            String normalizedExpectation = normalizeFeedbackText(expectation, 1000, "Mong muốn góp ý");
+            feedbackDAO.add((int) session.getAttribute("customerId"), normalizedReason, normalizedExpectation);
+            redirectAttributes.addFlashAttribute("success", "Cảm ơn bạn đã gửi phản hồi. Admin sẽ xem và cải thiện dịch vụ.");
+            return "redirect:/customer/feedback";
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", "Không thể gửi phản hồi: " + ex.getMessage());
+            return "redirect:/customer/feedback";
+        }
     }
 
     @PostMapping("/customer/order")
@@ -151,6 +188,7 @@ public class CustomerController {
                                       @RequestParam String paymentMethod,
                                       @RequestParam(defaultValue = "takeaway") String orderType,
                                       @RequestParam(required = false) String deliveryAddress,
+                                      @RequestParam(required = false) String note,
                                       HttpSession session,
                                       RedirectAttributes redirectAttributes) {
         if (!"customer".equals(session.getAttribute("role"))) {
@@ -174,7 +212,8 @@ public class CustomerController {
                     (int) session.getAttribute("customerId"),
                     normalizedOrderType,
                     normalizedDeliveryAddress,
-                    normalizedPaymentMethod);
+                    normalizedPaymentMethod,
+                    note);
             if (!submittedBefore) {
                 orderNotificationService.notifyNewOrder(new OrderNotification(
                         order.getOrderId(),
@@ -304,6 +343,17 @@ public class CustomerController {
     private boolean hasRequestedPaymentMethod(Order order) {
         String method = order.getRequestedPaymentMethod();
         return method != null && !method.isBlank();
+    }
+
+    private String normalizeFeedbackText(String value, int maxLength, String fieldName) {
+        if (value == null || value.trim().length() < 5) {
+            throw new IllegalArgumentException(fieldName + " cần ít nhất 5 ký tự.");
+        }
+        String normalized = value.trim();
+        if (normalized.length() > maxLength) {
+            throw new IllegalArgumentException(fieldName + " không được vượt quá " + maxLength + " ký tự.");
+        }
+        return normalized;
     }
 
     private List<Product> findProducts(String keyword, Integer categoryId) throws Exception {

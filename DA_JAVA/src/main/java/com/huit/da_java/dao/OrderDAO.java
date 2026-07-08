@@ -179,16 +179,18 @@ public class OrderDAO {
                                               int customerId,
                                               String orderType,
                                               String deliveryAddress,
-                                              String method) throws SQLException {
+                                              String method,
+                                              String note) throws SQLException {
         if (!List.of("cash", "momo", "bank").contains(method)) {
-            throw new SQLException("PhÆ°Æ¡ng thá»©c thanh toÃ¡n khÃ´ng há»£p lá»‡.");
+            throw new SQLException("Phương thức thanh toán không hợp lệ.");
         }
         ensureCustomerOrderColumns();
         String sql = """
                 UPDATE Orders
                 SET order_type = ?,
                     delivery_address = ?,
-                    requested_payment_method = ?
+                    requested_payment_method = ?,
+                    customer_note = ?
                 WHERE order_id = ?
                   AND customer_id = ?
                   AND status = 'pending'
@@ -199,10 +201,11 @@ public class OrderDAO {
             stmt.setString(1, orderType);
             stmt.setString(2, deliveryAddress);
             stmt.setString(3, method);
-            stmt.setInt(4, orderId);
-            stmt.setInt(5, customerId);
+            stmt.setString(4, note);
+            stmt.setInt(5, orderId);
+            stmt.setInt(6, customerId);
             if (stmt.executeUpdate() == 0) {
-                throw new SQLException("KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n khÃ¡ch Ä‘ang chá» thanh toÃ¡n.");
+                throw new SQLException("Không tìm thấy đơn khách đang chờ thanh toán.");
             }
         }
     }

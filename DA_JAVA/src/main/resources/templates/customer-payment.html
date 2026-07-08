@@ -4,148 +4,1023 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Thanh toán đơn hàng</title>
-    <link rel="stylesheet" th:href="@{/css/app.css(v='20260524-customer-security')}">
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20260604-payment-footer')}">
+    <style>
+        /* --- TÔNG MÀU CAFE ẤM ÁP --- */
+        :root {
+            --primary-color: #B84A00;
+            --primary-hover: #8A3300;
+            --accent-color: #E2A77D;
+            --bg-light: #FFFDF8;
+            --text-dark: #7A2E00;
+            --text-muted: #A24A13;
+            --border-color: #E9DFD2;
+            --shadow-sm: 0 4px 14px rgba(67, 32, 8, 0.05);
+            --shadow-md: 0 14px 30px rgba(67, 32, 8, 0.10);
+        }
+
+        body.customer-page {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+
+        /* --- TOPBAR HEADER --- */
+        .customer-topbar {
+            min-height: 84px;
+            padding: 0 30px;
+            display: grid;
+            grid-template-columns: minmax(260px, 1fr) auto minmax(260px, 1fr);
+            gap: 24px;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 1px 0 rgba(122, 46, 0, 0.10);
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-sizing: border-box;
+        }
+
+        .customer-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .customer-brand-mark {
+            width: 50px;
+            height: 50px;
+            display: grid;
+            place-items: center;
+            border-radius: 16px;
+            padding: 0;
+            background: #a84300;
+            color: #fff;
+            font-size: 0;
+            box-shadow: 0 10px 22px rgba(122, 46, 0, 0.16);
+        }
+
+        .customer-brand-mark::before {
+            content: "☕";
+            font-size: 24px;
+        }
+
+        .customer-brand strong {
+            color: #7a2e00;
+            font-size: 23px;
+            line-height: 1;
+            display: block;
+        }
+
+        .customer-brand small {
+            color: #c25a05 !important;
+            font-size: 0;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .customer-brand small::after {
+            content: "Premium Coffee Shop";
+            font-size: 14px;
+        }
+
+        .customer-topbar nav {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+        }
+
+        .customer-topbar nav a {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 45px;
+            border-radius: 9px;
+            border: 0;
+            padding: 10px 26px;
+            color: #1f1f1f;
+            background: transparent;
+            font-size: 17px;
+            font-weight: 850;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        .customer-topbar nav a:hover {
+            color: var(--primary-color);
+        }
+
+        .customer-topbar nav a.active {
+            background: #c64a00;
+            color: #fff;
+        }
+
+        .customer-account-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            justify-content: flex-end;
+        }
+
+        .customer-account-copy {
+            color: #7a2e00;
+            text-align: right;
+            display: block;
+        }
+
+        .customer-account-copy small {
+            color: #c25a05;
+            font-size: 13px;
+            display: block;
+        }
+
+        .customer-account-copy strong {
+            font-size: 18px;
+            display: block;
+        }
+
+        .link-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            border: 1px solid #c64a00;
+            background: transparent;
+            color: #c64a00;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0;
+        }
+
+        .link-button:hover {
+            background: #c64a00;
+            color: #fff;
+        }
+
+        /* --- PAGE LAYOUT & GRID --- */
+        .payment-layout-new {
+            width: 100%;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .payment-header {
+            padding: 2.5rem 2rem 1.5rem 2rem;
+            max-width: 1140px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .payment-header h1 {
+            color: #7a2e00;
+            font-size: clamp(28px, 4vw, 36px);
+            margin: 0 0 0.5rem 0;
+            font-weight: 800;
+        }
+
+        .payment-header p {
+            color: #a24a13;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .payment-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 380px;
+            gap: 30px;
+            max-width: 1140px;
+            margin: 0 auto 4rem auto;
+            padding: 0 2rem;
+            box-sizing: border-box;
+            align-items: start;
+        }
+
+        .payment-main-col {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .payment-sidebar-col {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: sticky;
+            top: 104px;
+        }
+
+        /* --- CARDS & FORMS --- */
+        .payment-card {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #E9DFD2;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(67, 32, 8, 0.03);
+            box-sizing: border-box;
+        }
+
+        .card-heading {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            color: #7a2e00;
+        }
+
+        .card-heading svg {
+            color: #b84a00;
+        }
+
+        .card-heading h3 {
+            font-size: 18px;
+            font-weight: 750;
+            margin: 0;
+        }
+
+        .choice-stack-new {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-card-new {
+            background: white;
+            border: 1.5px solid #E9DFD2;
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .option-card-new input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .radio-custom {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #A24A13;
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+
+        .option-card-new input[type="radio"]:checked ~ .radio-custom {
+            border-color: #b84a00;
+        }
+
+        .option-card-new input[type="radio"]:checked ~ .radio-custom::after {
+            content: "";
+            width: 10px;
+            height: 10px;
+            background: #b84a00;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .option-card-new input[type="radio"]:checked ~ .option-info strong {
+            color: #b84a00;
+        }
+
+        .option-card-new:has(input[type="radio"]:checked) {
+            border-color: #b84a00;
+            box-shadow: 0 4px 12px rgba(184, 74, 0, 0.06);
+            background: #FFFDFB;
+        }
+
+        .option-card-new.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f7f5f2;
+        }
+
+        .option-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .option-info strong {
+            color: #7a2e00;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: left;
+        }
+
+        .option-info small {
+            color: #a24a13;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        /* --- ADDRESS FIELD --- */
+        .delivery-address-field-new textarea {
+            width: 100%;
+            min-height: 80px;
+            box-sizing: border-box;
+            background: #F1F3F5;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 14px;
+            color: #7a2e00;
+            resize: vertical;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .delivery-address-field-new textarea:focus {
+            background: white;
+            border-color: #b84a00;
+            box-shadow: 0 0 0 3px rgba(184, 74, 0, 0.1);
+        }
+
+        /* --- STATIC NOTE BOX --- */
+        .static-note-box-new {
+            background: #F1F3F5;
+            border-radius: 10px;
+            padding: 16px;
+            color: #7a2e00;
+            font-size: 15px;
+            display: block;
+            text-align: left;
+        }
+
+        /* --- CONFIRMED PANEL & INFOLIST --- */
+        .payment-card-confirmed {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #E9DFD2;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(67, 32, 8, 0.03);
+            box-sizing: border-box;
+        }
+
+        .confirmed-header {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #E9DFD2;
+            padding-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-badge {
+            background: #FFF3D1;
+            color: #b84a00;
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 750;
+        }
+
+        .confirmed-header h2 {
+            margin: 0;
+            font-size: 22px;
+            color: #7a2e00;
+            font-weight: 750;
+        }
+
+        .confirmed-instruction {
+            margin-bottom: 2rem;
+            color: #a24a13;
+            font-size: 15px;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        .info-list-new {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .info-row-new {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed #E9DFD2;
+            padding-bottom: 10px;
+        }
+
+        .info-row-new:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .info-row-new span {
+            color: #a24a13;
+            font-size: 14px;
+        }
+
+        .info-row-new strong {
+            color: #7a2e00;
+            font-size: 15px;
+        }
+
+        .info-row-new strong.highlight-content {
+            background: #FFF3D1;
+            padding: 2px 8px;
+            border-radius: 6px;
+            color: #b84a00;
+        }
+
+        /* --- SIDEBAR SUMMARY CARD --- */
+        .sidebar-summary-card {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #E9DFD2;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(67, 32, 8, 0.04);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-summary-card h2 {
+            color: #7a2e00;
+            font-size: 18px;
+            margin: 0;
+            font-weight: 750;
+            text-align: left;
+        }
+
+        .summary-divider {
+            height: 1px;
+            background: #E9DFD2;
+            margin: 1rem 0;
+        }
+
+        .summary-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .summary-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-name-qty {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            text-align: left;
+        }
+
+        .item-name-qty strong {
+            color: #7a2e00;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .item-name-qty small {
+            color: #a24a13;
+            font-size: 13px;
+        }
+
+        .item-total-price strong {
+            color: #7a2e00;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .summary-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-total-row span {
+            color: #7a2e00;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .summary-total-row strong {
+            color: #b84a00;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        /* --- BUTTONS --- */
+        .primary-submit-btn,
+        .confirmed-btn {
+            background: #b84a00;
+            color: white;
+            border: none;
+            width: 100%;
+            min-height: 48px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .primary-submit-btn:hover,
+        .confirmed-btn:hover {
+            background: #8A3300;
+        }
+
+        .ghost-back-btn,
+        .back-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 44px;
+            border-radius: 10px;
+            border: 1px dashed #b84a00;
+            color: #b84a00;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 700;
+            margin-top: 10px;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+
+        .ghost-back-btn:hover,
+        .back-btn:hover {
+            background: rgba(184, 74, 0, 0.04);
+        }
+
+        /* --- QR BOX & CASH CODE BOX --- */
+        .qr-card-box,
+        .cash-card-box {
+            text-align: center;
+        }
+
+        .qr-image-container {
+            display: grid;
+            place-items: center;
+            padding: 10px;
+        }
+
+        .qr-image-container img {
+            max-width: 200px;
+            height: auto;
+            border: 1px solid #E9DFD2;
+            border-radius: 12px;
+            padding: 10px;
+            background: white;
+        }
+
+        .cash-code-container {
+            font-size: 40px;
+            font-weight: 900;
+            color: #b84a00;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: #FFFDF9;
+            border: 1px dashed #E2A77D;
+            display: inline-block;
+            margin: 0 auto;
+        }
+
+        /* --- ALERT --- */
+        .alert {
+            padding: 1rem;
+            margin: 0 auto 1.5rem auto;
+            border-radius: 10px;
+            font-weight: 500;
+            max-width: 1140px;
+            box-sizing: border-box;
+        }
+        .alert.success { background: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; }
+        .alert.danger { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+
+        /* --- FOOTER --- */
+        .customer-site-footer {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr 1fr 1fr;
+            gap: 46px;
+            margin: 40px 0 0 0;
+            border: 0;
+            border-radius: 0;
+            padding: 58px 30px 44px;
+            background: #722700;
+            color: #ffe8c4;
+            box-shadow: none;
+            box-sizing: border-box;
+        }
+
+        .customer-site-footer .footer-brand-block {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 16px;
+        }
+
+        .customer-site-footer .footer-mark {
+            background: rgba(255,255,255,0.12);
+            flex: 0 0 auto;
+            width: 46px;
+            height: 46px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            color: #fff;
+            font-weight: 950;
+        }
+
+        .customer-site-footer .footer-brand-block strong,
+        .customer-site-footer .footer-info-grid strong,
+        .customer-site-footer .footer-info-grid a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .customer-site-footer .footer-brand-block p,
+        .customer-site-footer .footer-info-grid span {
+            color: #ffe1a6;
+        }
+
+        .customer-site-footer .footer-info-grid {
+            display: contents;
+        }
+
+        .customer-site-footer .footer-info-grid div:nth-child(2) {
+            display: none;
+        }
+
+        .customer-site-footer .footer-info-grid div {
+            border: 0;
+            padding: 0;
+            background: transparent;
+        }
+
+        .customer-site-footer .footer-info-grid span {
+            margin-bottom: 14px;
+            font-size: 22px;
+            font-weight: 900;
+            text-transform: none;
+            display: block;
+        }
+
+        .customer-site-footer .footer-info-grid div:first-child span {
+            font-size: 0;
+        }
+
+        .customer-site-footer .footer-info-grid div:first-child span::after {
+            content: "Liên hệ";
+            font-size: 22px;
+        }
+
+        .customer-site-footer .footer-info-grid div:first-child a::before {
+            content: "Hotline\A";
+            white-space: pre-line;
+        }
+
+        .customer-site-footer .footer-info-grid div:first-child a::after {
+            content: "\A Email\A manh27062005@gmail.com";
+            white-space: pre-line;
+        }
+
+        .customer-site-footer .footer-info-grid a,
+        .customer-site-footer .footer-info-grid strong {
+            font-size: 17px;
+            font-weight: 500;
+            line-height: 1.8;
+            display: block;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 980px) {
+            .customer-topbar {
+                grid-template-columns: 1fr;
+                gap: 14px;
+                padding: 14px 18px;
+            }
+
+            .customer-topbar nav,
+            .customer-account-bar {
+                justify-content: flex-start;
+            }
+
+            .payment-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 0 1rem;
+            }
+
+            .payment-sidebar-col {
+                position: static;
+            }
+
+            .customer-site-footer {
+                grid-template-columns: 1fr 1fr;
+                padding: 40px 20px;
+                gap: 30px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .customer-topbar nav a {
+                padding: 10px 18px;
+                font-size: 15px;
+            }
+
+            .customer-site-footer {
+                grid-template-columns: 1fr;
+                gap: 26px;
+            }
+        }
+    </style>
 </head>
-<body class="customer-page payment-page">
+<body class="customer-page">
 <header class="topbar customer-topbar">
     <a class="brand-link customer-brand" th:href="@{/customer/menu}">
         <span class="customer-brand-mark">CM</span>
         <span><strong>Cafe Menu</strong><small>Thanh toán đơn hàng</small></span>
     </a>
     <nav>
-        <a th:href="@{/customer/menu}">Thực đơn</a>
-        <a class="active">Thanh toán</a>
+        <a th:href="@{/customer/menu}">
+            <!-- Hamburger SVG Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            Thực đơn
+        </a>
+        <a th:href="@{/customer/feedback}">
+            <!-- Chat bubble SVG Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            Phản hồi
+        </a>
     </nav>
-    <form class="customer-account-bar" th:action="@{/logout}" method="post">
-        <span class="customer-account-copy"><small>Khách hàng</small><strong th:text="${fullName}">Customer</strong></span>
-        <button class="link-button" type="submit">Đăng xuất</button>
+    <form class="customer-account-bar" th:action="@{/logout}" method="post" style="margin: 0; display: inline-flex;">
+        <span class="customer-account-copy"><small>Xin chào, </small><strong th:text="${fullName}">Customer</strong></span>
+        <!-- Sign out SVG Icon -->
+        <button class="link-button" type="submit" aria-label="Đăng xuất">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </button>
     </form>
 </header>
 
-<main class="page payment-layout">
-    <section class="payment-summary-panel">
-        <p class="eyebrow" th:text="${paymentSelected} ? (${qrPayment} ? 'Thanh toán QR' : 'Thanh toán tại quầy') : 'Chọn thanh toán'">Thanh toán</p>
-        <h1 th:text="'Đơn #' + ${order.orderId}">Đơn #1</h1>
-        <p th:unless="${paymentSelected}">Chọn cách nhận hàng và phương thức thanh toán để tiếp tục.</p>
-        <p th:if="${paymentSelected and qrPayment}">Quét mã QR bằng ứng dụng ngân hàng hoặc ví điện tử. Sau khi chuyển khoản, nhân viên sẽ kiểm tra và xác nhận đơn.</p>
-        <p th:if="${paymentSelected and !qrPayment}">Đơn đã được gửi đến quầy. Vui lòng thanh toán tiền mặt khi nhận món.</p>
+<main class="page payment-layout-new">
+    <div th:if="${success}" class="alert success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert danger" th:text="${error}"></div>
 
-        <div class="payment-amount-box">
-            <span>Số tiền cần thanh toán</span>
-            <strong th:text="${order.totalFormatted}">0 VND</strong>
-        </div>
+    <div class="payment-header">
+        <h1>Thanh toán đơn hàng</h1>
+        <p>Chọn cách nhận hàng và phương thức thanh toán</p>
+    </div>
 
-        <form th:unless="${paymentSelected}" th:action="@{/customer/payment/{id}/method(id=${order.orderId})}" method="post" class="payment-method-form">
-            <div class="choice-stack">
-                <label class="option-card">
-                    <input type="radio" name="orderType" value="takeaway" th:checked="${order.orderType != 'delivery'}">
-                    <span>
-                        <strong>Nhận tại quầy</strong>
-                        <small>Phù hợp khi bạn đang ở quán hoặc muốn tự đến lấy.</small>
-                    </span>
-                </label>
-                <label class="option-card">
-                    <input type="radio" name="orderType" value="delivery" th:checked="${order.orderType == 'delivery'}">
-                    <span>
-                        <strong>Giao tận nhà</strong>
-                        <small>Cần địa chỉ chi tiết để nhân viên chuẩn bị giao hàng.</small>
-                    </span>
-                </label>
+    <div class="payment-grid">
+        <!-- Left Column: Forms and details -->
+        <div class="payment-main-col">
+            <!-- Form to select options when paymentSelected is false -->
+            <form th:unless="${paymentSelected}" th:action="@{/customer/payment/{id}/method(id=${order.orderId})}" method="post" id="payment-method-form" class="payment-form-new">
+                
+                <!-- Section 1: Cách nhận hàng -->
+                <div class="payment-card">
+                    <div class="card-heading">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        <h3>Cách nhận hàng</h3>
+                    </div>
+                    
+                    <div class="choice-stack-new">
+                        <label class="option-card-new">
+                            <input type="radio" name="orderType" value="takeaway" th:checked="${order.orderType != 'delivery'}">
+                            <span class="radio-custom"></span>
+                            <span class="option-info">
+                                <strong>Nhận tại quầy</strong>
+                                <small>Phù hợp khi bạn đang ở quán hoặc muốn tự đến lấy</small>
+                            </span>
+                        </label>
+                        <label class="option-card-new">
+                            <input type="radio" name="orderType" value="delivery" th:checked="${order.orderType == 'delivery'}">
+                            <span class="radio-custom"></span>
+                            <span class="option-info">
+                                <strong>Giao tận nhà</strong>
+                                <small>Cần địa chỉ chi tiết để nhân viên chuẩn bị giao hàng</small>
+                            </span>
+                        </label>
+                    </div>
+                    
+                    <div class="delivery-address-field-new" style="display: none; margin-top: 1.25rem;">
+                        <label for="deliveryAddress" style="font-weight: 700; color: #7a2e00; margin-bottom: 0.5rem; display: block; font-size: 14px;">Địa chỉ giao hàng *</label>
+                        <textarea id="deliveryAddress" name="deliveryAddress" rows="3"
+                                  th:text="${order.deliveryAddress != null && !order.deliveryAddress.isBlank() ? order.deliveryAddress : customerAddress}"
+                                  placeholder="Số nhà, tên đường, phường/xã, quận/huyện..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Section 2: Phương thức thanh toán -->
+                <div class="payment-card">
+                    <div class="card-heading">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                        <h3>Phương thức thanh toán</h3>
+                    </div>
+                    
+                    <div class="choice-stack-new">
+                        <label class="option-card-new">
+                            <input type="radio" name="paymentMethod" value="momo" checked>
+                            <span class="radio-custom"></span>
+                            <span class="option-info">
+                                <strong>Thanh toán QR MoMo</strong>
+                                <small>Tạo mã QR đúng số tiền và nội dung mã đơn</small>
+                            </span>
+                        </label>
+                        <label class="option-card-new cash-option-new">
+                            <input type="radio" name="paymentMethod" value="cash">
+                            <span class="radio-custom"></span>
+                            <span class="option-info">
+                                <strong>Tiền mặt tại quầy</strong>
+                                <small>Nhân viên sẽ xử lý và xác nhận khi bạn thanh toán</small>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Section 3: Ghi chú đơn hàng -->
+                <div class="payment-card">
+                    <div class="card-heading">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        <h3>Ghi chú đơn hàng</h3>
+                    </div>
+                    <div class="delivery-address-field-new">
+                        <textarea name="note" rows="3" th:text="${order.customerNote}" placeholder="Ít đá, không đường, nhận tại quầy..."></textarea>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Show details if paymentSelected is true -->
+            <div th:if="${paymentSelected}" class="payment-card-confirmed">
+                <div class="confirmed-header">
+                    <div class="status-badge" th:text="${order.statusText}">Chờ thanh toán</div>
+                    <h2 th:text="'Đơn hàng #' + ${order.orderId}">Đơn hàng #1</h2>
+                </div>
+                
+                <div class="confirmed-instruction" th:if="${qrPayment}">
+                    <p>Quét mã QR bằng ứng dụng ngân hàng hoặc ví điện tử để thực hiện chuyển khoản. Sau khi thanh toán, vui lòng ấn nút <strong>"Tôi đã thanh toán"</strong> bên dưới để nhân viên đối soát.</p>
+                </div>
+                <div class="confirmed-instruction" th:unless="${qrPayment}">
+                    <p>Đơn hàng đã được lưu và gửi tới quầy pha chế. Quý khách vui lòng thanh toán tiền mặt trực tiếp tại quầy khi nhận món.</p>
+                </div>
+
+                <div class="info-list-new">
+                    <div class="info-row-new">
+                        <span>Thời gian đặt</span>
+                        <strong th:text="${order.orderTimeText}">14/05/2026 16:05</strong>
+                    </div>
+                    <div class="info-row-new" th:if="${qrPayment}">
+                        <span>Ví MoMo nhận tiền</span>
+                        <strong th:text="${momoWalletPhone}">0769479813</strong>
+                    </div>
+                    <div class="info-row-new" th:if="${qrPayment}">
+                        <span>Nội dung chuyển khoản</span>
+                        <strong class="highlight-content" th:text="${paymentContent}">DON1</strong>
+                    </div>
+                    <div class="info-row-new">
+                        <span>Hình thức nhận</span>
+                        <strong th:text="${order.orderTypeText}">Nhận tại quầy</strong>
+                    </div>
+                    <div class="info-row-new" th:if="${order.deliveryAddress != null && !order.deliveryAddress.isBlank()}">
+                        <span>Địa chỉ giao</span>
+                        <strong th:text="${order.deliveryAddress}">Địa chỉ</strong>
+                    </div>
+                    <div class="info-row-new">
+                        <span>Phương thức</span>
+                        <strong th:text="${order.requestedPaymentMethodText}">MoMo QR</strong>
+                    </div>
+                    <div class="info-row-new">
+                        <span>Khách hàng</span>
+                        <strong th:text="${order.customerName}">Khách hàng</strong>
+                    </div>
+                    <div class="info-row-new">
+                        <span>Trạng thái</span>
+                        <strong th:text="${order.statusText}">Chờ thanh toán</strong>
+                    </div>
+                </div>
+
+                <div class="confirmed-actions" style="margin-top: 2rem;">
+                    <form th:if="${qrPayment}" th:action="@{/customer/payment/{id}/confirm(id=${order.orderId})}" method="post" style="margin-bottom: 1rem;">
+                        <button class="primary wide confirmed-btn" type="submit">Tôi đã thanh toán</button>
+                    </form>
+                    <a class="ghost wide back-btn" th:href="@{/customer/menu}">Quay lại thực đơn</a>
+                </div>
             </div>
 
-            <label class="delivery-address-field" hidden>Địa chỉ giao hàng
-                <textarea name="deliveryAddress"
-                          rows="3"
-                          th:text="${order.deliveryAddress != null && !order.deliveryAddress.isBlank() ? order.deliveryAddress : customerAddress}"
-                          placeholder="Số nhà, tên đường, phường/xã, quận/huyện, ghi chú nhận hàng"></textarea>
-            </label>
-
-            <div class="choice-stack">
-                <label class="option-card">
-                    <input type="radio" name="paymentMethod" value="momo" checked>
-                    <span>
-                        <strong>Thanh toán QR MoMo</strong>
-                        <small>Tạo mã QR đúng số tiền và nội dung mã đơn.</small>
-                    </span>
-                </label>
-                <label class="option-card cash-option">
-                    <input type="radio" name="paymentMethod" value="cash">
-                    <span>
-                        <strong>Tiền mặt tại quầy</strong>
-                        <small>Nhân viên sẽ xử lý và xác nhận khi bạn thanh toán.</small>
-                    </span>
-                </label>
-            </div>
-            <button class="primary wide" type="submit">Tiếp tục thanh toán</button>
-        </form>
-
-        <div class="payment-info-list">
-            <div><span>Thời gian đặt</span><strong th:text="${order.orderTimeText}">14/05/2026 16:05</strong></div>
-            <div th:if="${paymentSelected and qrPayment}"><span>Ví MoMo nhận tiền</span><strong th:text="${momoWalletPhone}">0769479813</strong></div>
-            <div th:if="${paymentSelected and qrPayment}"><span>Nội dung</span><strong th:text="${paymentContent}">DON1</strong></div>
-            <div><span>Nhận hàng</span><strong th:text="${order.orderTypeText}">Nhận tại quầy</strong></div>
-            <div th:if="${order.deliveryAddress != null && !order.deliveryAddress.isBlank()}"><span>Địa chỉ giao</span><strong th:text="${order.deliveryAddress}">Địa chỉ</strong></div>
-            <div th:if="${paymentSelected}"><span>Phương thức</span><strong th:text="${order.requestedPaymentMethodText}">MoMo QR</strong></div>
-            <div><span>Khách hàng</span><strong th:text="${order.customerName}">Khách hàng</strong></div>
-            <div><span>Trạng thái</span><strong th:text="${order.statusText}">Chờ thanh toán</strong></div>
-        </div>
-
-        <form th:if="${paymentSelected and qrPayment}" th:action="@{/customer/payment/{id}/confirm(id=${order.orderId})}" method="post">
-            <button class="primary wide" type="submit">Tôi đã thanh toán</button>
-        </form>
-        <a class="ghost wide" th:href="@{/customer/menu}">Quay lại menu</a>
-    </section>
-
-    <section class="qr-panel" th:if="${paymentSelected and qrPayment}">
-        <div class="qr-card">
-            <img th:src="@{/customer/payment/{id}/qr(id=${order.orderId})}" alt="Mã QR thanh toán">
-        </div>
-        <div class="order-items payment-items">
-            <div class="order-item" th:each="item : ${order.details}">
-                <span th:text="${item.productName}">Món</span>
-                <small th:text="'x' + ${item.quantity}">x1</small>
-                <strong th:text="${item.subtotalFormatted}">0 VND</strong>
+            <!-- Ghi chú đơn hàng (show when confirmed and has note) -->
+            <div class="payment-card" th:if="${paymentSelected and order.customerNote != null && !order.customerNote.isBlank()}">
+                <div class="card-heading">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <h3>Ghi chú đơn hàng</h3>
+                </div>
+                <div class="static-note-box-new">
+                    <span th:text="${order.customerNote}">Không có ghi chú.</span>
+                </div>
             </div>
         </div>
-    </section>
 
-    <section class="qr-panel cash-payment-panel" th:if="${paymentSelected and !qrPayment}">
-        <div class="cash-instruction-card">
-            <p class="eyebrow">Tiền mặt</p>
-            <h2>Thanh toán tại quầy</h2>
-            <p>Nhân viên đã nhận được đơn và phương thức thanh toán tiền mặt. Khi đến quầy, bạn chỉ cần đọc mã đơn.</p>
-            <strong th:text="'#' + ${order.orderId}">#1</strong>
-        </div>
-        <div class="order-items payment-items">
-            <div class="order-item" th:each="item : ${order.details}">
-                <span th:text="${item.productName}">Món</span>
-                <small th:text="'x' + ${item.quantity}">x1</small>
-                <strong th:text="${item.subtotalFormatted}">0 VND</strong>
+        <!-- Right Column: Sidebar (Items and Action button) -->
+        <div class="payment-sidebar-col">
+            
+            <!-- QR code card if paymentSelected and MoMo QR -->
+            <div class="payment-card qr-card-box" th:if="${paymentSelected and qrPayment}">
+                <div class="card-heading" style="justify-content: center;">
+                    <h3>Mã QR Thanh toán</h3>
+                </div>
+                <div class="qr-image-container">
+                    <img th:src="@{/customer/payment/{id}/qr(id=${order.orderId})}" alt="Mã QR thanh toán">
+                </div>
+            </div>
+
+            <!-- Cash order ID card if paymentSelected and Cash -->
+            <div class="payment-card cash-card-box" th:if="${paymentSelected and !qrPayment}">
+                <div class="card-heading" style="justify-content: center;">
+                    <h3>Mã đơn hàng của bạn</h3>
+                </div>
+                <div class="cash-code-container">
+                    <strong th:text="'#' + ${order.orderId}">#1</strong>
+                </div>
+            </div>
+
+            <!-- Summary items card -->
+            <div class="sidebar-summary-card">
+                <h2>Đơn hàng của bạn</h2>
+                <div class="summary-divider"></div>
+                
+                <div class="summary-items-list">
+                    <div class="summary-item-row" th:each="item : ${order.details}">
+                        <div class="item-name-qty">
+                            <strong th:text="${item.productName}">Món</strong>
+                            <small th:text="${item.subtotalFormatted} + ' × ' + ${item.quantity}">0 VND x 1</small>
+                        </div>
+                        <div class="item-total-price">
+                            <strong th:text="${item.subtotalFormatted}">0 VND</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-divider"></div>
+                
+                <div class="summary-total-row">
+                    <span>Tổng cộng</span>
+                    <strong th:text="${order.totalFormatted}">0 VND</strong>
+                </div>
+
+                <!-- Submit button if options are not selected yet -->
+                <div th:unless="${paymentSelected}" style="margin-top: 1.5rem;">
+                    <button type="submit" form="payment-method-form" class="primary-submit-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        Tiếp tục thanh toán
+                    </button>
+                    <a class="ghost-back-btn" th:href="@{/customer/menu}">Quay lại thực đơn</a>
+                </div>
             </div>
         </div>
-    </section>
-
-    <section class="qr-panel payment-pending-panel" th:unless="${paymentSelected}">
-        <div class="cash-instruction-card">
-            <p class="eyebrow">Giỏ hàng</p>
-            <h2>Kiểm tra món</h2>
-            <p>Danh sách món đã chọn của bạn nằm bên cạnh. Chọn cách nhận hàng và phương thức thanh toán để hoàn tất.</p>
-            <strong th:text="${order.totalFormatted}">0 VND</strong>
-        </div>
-        <div class="order-items payment-items">
-            <div class="order-item" th:each="item : ${order.details}">
-                <span th:text="${item.productName}">Món</span>
-                <small th:text="'x' + ${item.quantity}">x1</small>
-                <strong th:text="${item.subtotalFormatted}">0 VND</strong>
+    </div>
+    
+    <footer class="site-footer customer-site-footer">
+        <div class="footer-brand-block">
+            <span class="footer-mark">CM</span>
+            <div>
+                <strong>Cafe Menu</strong>
+                <p>Đặt món nhanh, nhận tại quầy hoặc thanh toán QR tiện lợi cho mỗi lần ghé quán.</p>
             </div>
         </div>
-    </section>
+        <div class="footer-info-grid">
+            <div><span>Hotline</span><a href="tel:0769479813">0769479813</a></div>
+            <div><span>Email</span><a href="mailto:manh27062005@gmail.com">manh27062005@gmail.com</a></div>
+            <div><span>Địa chỉ</span><strong>140 Lê Trọng Tấn, Tân Phú, Hồ Chí Minh</strong></div>
+            <div><span>Phục vụ</span><strong>Đồ uống tươi, thanh toán nhanh, hỗ trợ thân thiện</strong></div>
+        </div>
+    </footer>
 </main>
+
 <script>
     (function () {
-        var deliveryField = document.querySelector(".delivery-address-field");
+        var deliveryField = document.querySelector(".delivery-address-field-new");
         var deliveryInput = deliveryField ? deliveryField.querySelector("textarea") : null;
-        var cashOption = document.querySelector(".cash-option");
+        var cashOption = document.querySelector(".cash-option-new");
         var cashInput = cashOption ? cashOption.querySelector("input") : null;
         var momoInput = document.querySelector("input[name='paymentMethod'][value='momo']");
         var typeInputs = document.querySelectorAll("input[name='orderType']");
@@ -154,7 +1029,7 @@
             var checkedType = document.querySelector("input[name='orderType']:checked");
             var delivery = checkedType && checkedType.value === "delivery";
             if (deliveryField && deliveryInput) {
-                deliveryField.hidden = !delivery;
+                deliveryField.style.display = delivery ? "block" : "none";
                 deliveryInput.required = delivery;
             }
             if (cashOption && cashInput) {

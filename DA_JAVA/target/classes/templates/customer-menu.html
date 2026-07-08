@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Customer Menu</title>
-    <link rel="stylesheet" th:href="@{/css/app.css(v='20260524-customer-security')}">
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20260604-customer-menu-polish')}">
     <style>
         /* --- CSS RESET & PHONG CÁCH HIỆN ĐẠI TÍCH HỢP --- */
         :root {
@@ -412,6 +412,664 @@
         }
         .alert.success { background: #E8F5E9; color: #2E7D32; }
         .alert.danger { background: #FFEBEE; color: #C62828; }
+
+        /* Customer menu polish */
+        :root {
+            --primary-color: #B84A00;
+            --primary-hover: #8A3300;
+            --accent-color: #E2A77D;
+            --bg-light: #FFFDF8;
+            --text-dark: #7A2E00;
+            --text-muted: #A24A13;
+            --border-color: #E9DFD2;
+            --shadow-sm: 0 4px 14px rgba(67, 32, 8, 0.05);
+            --shadow-md: 0 14px 30px rgba(67, 32, 8, 0.10);
+        }
+
+        body.customer-page {
+            background: #fffdf8;
+            color: #7a2e00;
+        }
+
+        .customer-topbar {
+            min-height: 84px;
+            padding: 0 30px;
+            display: grid;
+            grid-template-columns: minmax(260px, 1fr) auto minmax(260px, 1fr);
+            gap: 24px;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 1px 0 rgba(122, 46, 0, 0.10);
+        }
+
+        .customer-brand {
+            gap: 14px;
+        }
+
+        .customer-brand-mark {
+            width: 50px;
+            height: 50px;
+            display: grid;
+            place-items: center;
+            border-radius: 16px;
+            padding: 0;
+            background: #a84300;
+            color: #fff;
+            font-size: 0;
+            box-shadow: 0 10px 22px rgba(122, 46, 0, 0.16);
+        }
+
+        .customer-brand-mark::before {
+            content: "☕";
+            font-size: 24px;
+        }
+
+        .customer-brand strong {
+            color: #7a2e00;
+            font-size: 23px;
+            line-height: 1;
+        }
+
+        .customer-brand small {
+            color: #c25a05 !important;
+            font-size: 0;
+        }
+
+        .customer-brand small::after {
+            content: "Premium Coffee Shop";
+            font-size: 14px;
+        }
+
+        .customer-topbar nav {
+            justify-content: center;
+            gap: 18px;
+        }
+
+        .customer-topbar nav .category-pill {
+            min-height: 45px;
+            border-radius: 9px;
+            border: 0;
+            padding: 10px 26px;
+            color: #1f1f1f;
+            background: transparent;
+            font-size: 17px;
+            font-weight: 850;
+        }
+
+        .customer-topbar nav .category-pill.active {
+            background: #c64a00;
+            color: #fff;
+        }
+
+        .customer-account-bar {
+            justify-content: flex-end;
+        }
+
+        .customer-account-copy {
+            color: #7a2e00;
+            text-align: right;
+        }
+
+        .customer-account-copy small {
+            color: #c25a05;
+            font-size: 13px;
+        }
+
+        .customer-account-copy strong {
+            font-size: 18px;
+        }
+
+        .link-button {
+            min-width: 44px;
+            min-height: 44px;
+            border-radius: 10px;
+            border-color: #c64a00;
+            color: #c64a00;
+            padding: 0 13px;
+            font-size: 0;
+        }
+
+        .link-button::before {
+            content: "↪";
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        .customer-menu-page {
+            width: 100%;
+            padding: 0;
+        }
+
+        .customer-hero {
+            min-height: 170px;
+            margin: 0;
+            border-radius: 0;
+            padding: 28px 30px 32px;
+            display: grid;
+            grid-template-columns: 1fr;
+            justify-items: center;
+            text-align: center;
+            background:
+                linear-gradient(90deg, rgba(255, 249, 221, 0.95), rgba(255, 240, 176, 0.82)),
+                url("/images/cafe-pattern.svg") center/520px;
+            box-shadow: none;
+        }
+
+        .customer-hero-copy {
+            max-width: 760px;
+        }
+
+        .customer-hero-copy .tile-category {
+            display: inline-flex;
+            align-items: center;
+            min-height: 30px;
+            border: 1px solid #c64a00;
+            border-radius: 999px;
+            padding: 5px 14px;
+            background: #fffaf0;
+            color: #b84a00;
+            font-size: 13px;
+            text-transform: none;
+        }
+
+        .customer-hero-copy h1 {
+            margin: 14px 0 10px;
+            color: #7a2e00;
+            font-size: clamp(30px, 3.6vw, 46px);
+            line-height: 1.05;
+            letter-spacing: 0;
+        }
+
+        .customer-hero-copy p:not(.tile-category) {
+            color: #a84300 !important;
+            font-size: 17px;
+        }
+
+        .customer-benefits {
+            justify-content: center;
+            margin-top: 18px;
+        }
+
+        .customer-benefits span {
+            background: rgba(255, 255, 255, 0.82);
+            color: #8a3300;
+            font-size: 14px;
+        }
+
+        .customer-search {
+            width: min(560px, calc(100% - 28px));
+            grid-template-columns: 1fr auto;
+            border: 1px solid #f0ad16;
+            border-radius: 9px;
+            padding: 6px;
+            background: #fff;
+            box-shadow: none;
+        }
+
+        .customer-search input {
+            min-width: 0;
+            color: #7a2e00;
+        }
+
+        .customer-search button {
+            background: #c64a00;
+            border-radius: 7px;
+        }
+
+        .customer-weather-card {
+            width: min(560px, calc(100% - 28px));
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 14px;
+            align-items: center;
+            border: 1px solid #f0ad16;
+            border-radius: 12px;
+            padding: 13px 16px;
+            background: rgba(255, 255, 255, 0.88);
+            color: #7a2e00;
+            text-align: left;
+        }
+
+        .customer-weather-main {
+            display: grid;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .customer-weather-label {
+            color: #b84a00;
+            font-size: 12px;
+            font-weight: 850;
+            text-transform: uppercase;
+        }
+
+        .customer-weather-desc {
+            color: #7a2e00;
+            font-size: 16px;
+            font-weight: 850;
+        }
+
+        .customer-weather-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 12px;
+            color: #a84300;
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .customer-weather-temp {
+            color: #c64a00;
+            font-size: 34px;
+            font-weight: 950;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .customer-weather-card.is-loading .customer-weather-temp,
+        .customer-weather-card.is-error .customer-weather-temp {
+            font-size: 16px;
+            font-weight: 850;
+        }
+
+        .category-strip {
+            margin: 0;
+            padding: 20px 30px 30px;
+            border: 0;
+            border-bottom: 1px solid #e9dfd2;
+            border-radius: 0;
+            background: #fff;
+            box-shadow: none;
+        }
+
+        .category-strip .category-pill {
+            min-height: 45px;
+            border: 1px solid #f0ad16;
+            border-radius: 9px;
+            padding: 10px 21px;
+            color: #7a2e00;
+            background: #fff;
+            font-size: 16px;
+            font-weight: 850;
+        }
+
+        .category-strip .category-pill.active,
+        .category-strip .category-pill:hover {
+            background: #c64a00;
+            border-color: #c64a00;
+            color: #fff;
+        }
+
+        .customer-order.improved {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 350px;
+            gap: 24px;
+            padding: 56px 30px 40px;
+            background: #fffdf8;
+            align-items: start;
+        }
+
+        .menu-board {
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 15px;
+        }
+
+        .product-tile.customer {
+            min-height: auto;
+            border-radius: 12px;
+            border-color: #e6ded5;
+            box-shadow: none;
+        }
+
+        .product-tile.customer:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .product-tile.customer .product-image {
+            height: 130px;
+            aspect-ratio: auto;
+            object-fit: cover;
+        }
+
+        .product-tile.customer .product-tile-body {
+            min-height: auto;
+            padding: 16px 12px 12px;
+        }
+
+        .product-tile.customer h3 {
+            color: #7a2e00;
+            font-size: 16px;
+            line-height: 1.2;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .product-tile.customer .tile-category {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            border-radius: 6px;
+            padding: 2px 8px;
+            background: #c64a00;
+            color: #fff;
+            font-size: 11px;
+            text-transform: none;
+            z-index: 2;
+        }
+
+        .product-tile.customer strong {
+            display: block;
+            margin-top: 8px;
+            color: #b84a00;
+            font-size: 15px;
+        }
+
+        .product-actions {
+            gap: 10px;
+        }
+
+        .qty-control {
+            color: #7a2e00;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .qty-stepper {
+            width: 95px;
+            border: 0;
+            border-radius: 6px;
+            background: #fff8e9;
+        }
+
+        .qty-btn {
+            width: 26px;
+            height: 32px;
+            background: transparent;
+            color: #c64a00;
+            font-size: 14px;
+        }
+
+        .qty-stepper input[type="number"] {
+            width: 38px;
+            height: 32px;
+            color: #7a2e00;
+            font-size: 13px;
+        }
+
+        button.secondary.choose-product {
+            min-height: 32px;
+            border-radius: 5px;
+            background: #e2a77d;
+            font-size: 13px;
+        }
+
+        button.secondary.choose-product::before {
+            content: "▣";
+            margin-right: 6px;
+            font-size: 12px;
+        }
+
+        .customer-checkout-panel {
+            display: grid;
+            position: sticky;
+            top: 104px;
+            align-self: start;
+            border-radius: 18px;
+            padding: 21px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+            box-sizing: border-box;
+            background: #fff;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Cart button in Topbar */
+        .cart-topbar-btn {
+            border: 1.5px solid #b84a00;
+            color: #b84a00;
+            border-radius: 10px;
+            padding: 8px 16px;
+            background: transparent;
+            font-weight: 700;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .cart-topbar-btn:hover {
+            background: rgba(184, 74, 0, 0.05);
+        }
+
+        .cart-badge-topbar {
+            background: #b84a00;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: grid;
+            place-items: center;
+            font-size: 11px;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-weight: 800;
+        }
+
+        /* Cart Item Card styling */
+        .cart-item {
+            background: #fff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            text-align: left;
+        }
+
+        .cart-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-item-name {
+            color: #7a2e00;
+            font-weight: 700;
+            font-size: 16px;
+            margin: 0;
+            text-align: left;
+        }
+
+        .cart-item-qty-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cart-item-qty {
+            color: #7a2e00;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .cart-remove {
+            background: #FFF0F0;
+            color: #C62828;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            display: grid;
+            place-items: center;
+            font-size: 14px;
+            line-height: 1;
+            padding: 0;
+            transition: all 0.2s;
+        }
+
+        .cart-remove:hover {
+            background: #FFCDD2;
+        }
+
+        .cart-item-price {
+            color: #b84a00;
+            font-weight: 700;
+            font-size: 16px;
+            text-align: right;
+            margin: 0;
+        }
+
+        .cart-total {
+            background: #FFFDF9;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            margin: 1rem 0;
+        }
+
+        .customer-site-footer {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr 1fr 1fr;
+            gap: 46px;
+            margin: 20px 0 0;
+            border: 0;
+            border-radius: 0;
+            padding: 58px 30px 44px;
+            background: #722700;
+            color: #ffe8c4;
+            box-shadow: none;
+        }
+
+        .customer-site-footer .footer-brand-block {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 16px;
+        }
+
+        .customer-site-footer .footer-mark {
+            background: rgba(255,255,255,0.12);
+        }
+
+        .customer-site-footer .footer-brand-block strong,
+        .customer-site-footer .footer-info-grid strong,
+        .customer-site-footer .footer-info-grid a {
+            color: #fff;
+        }
+
+        .customer-site-footer .footer-brand-block p,
+        .customer-site-footer .footer-info-grid span {
+            color: #ffe1a6;
+        }
+
+        .customer-site-footer .footer-info-grid {
+            display: contents;
+        }
+
+        .customer-site-footer .footer-info-grid div:nth-child(2) {
+            display: none;
+        }
+
+        .customer-site-footer .footer-info-grid div {
+            border: 0;
+            padding: 0;
+            background: transparent;
+        }
+
+        .customer-site-footer .footer-info-grid span {
+            margin-bottom: 14px;
+            font-size: 22px;
+            font-weight: 900;
+            text-transform: none;
+        }
+
+        .customer-site-footer .footer-info-grid div:first-child span {
+            font-size: 0;
+        }
+
+        .customer-site-footer .footer-info-grid div:first-child span::after {
+            content: "Liên hệ";
+            font-size: 22px;
+        }
+
+        .customer-site-footer .footer-info-grid div:first-child a::before {
+            content: "Hotline\A";
+            white-space: pre-line;
+        }
+
+        .customer-site-footer .footer-info-grid div:first-child a::after {
+            content: "\A Email\A manh27062005@gmail.com";
+            white-space: pre-line;
+        }
+
+        .customer-site-footer .footer-info-grid a,
+        .customer-site-footer .footer-info-grid strong {
+            font-size: 17px;
+            font-weight: 500;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 1280px) {
+            .menu-board {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+        }
+
+        @media (max-width: 980px) {
+            .customer-topbar {
+                grid-template-columns: 1fr;
+                gap: 14px;
+                padding: 14px 18px;
+            }
+
+            .customer-topbar nav,
+            .customer-account-bar {
+                justify-content: flex-start;
+            }
+
+            .customer-hero {
+                padding: 30px 18px 34px;
+            }
+
+            .customer-hero-copy h1 {
+                font-size: clamp(30px, 7vw, 42px);
+            }
+
+            .menu-board {
+                grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            }
+
+            .customer-site-footer {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .category-strip,
+            .customer-order.improved {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .menu-board {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+
+            .customer-site-footer {
+                grid-template-columns: 1fr;
+                gap: 26px;
+            }
+
+            .customer-weather-card {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body class="customer-page">
@@ -421,12 +1079,32 @@
         <span><strong>Cafe Menu</strong><br><small style="color: var(--text-muted);">Đặt món trực tuyến</small></span>
     </a>
     <nav>
-        <a class="category-pill active" th:href="@{/customer/menu}">Thực đơn</a>
+        <a class="category-pill active" th:href="@{/customer/menu}">
+            <!-- Hamburger SVG Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            Thực đơn
+        </a>
+        <a class="category-pill" th:href="@{/customer/feedback}">
+            <!-- Chat bubble SVG Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            Phản hồi
+        </a>
     </nav>
-    <form class="customer-account-bar" th:action="@{/logout}" method="post">
+    <div class="customer-account-bar">
+        <div class="cart-topbar-btn" onclick="submitCartForm()">
+            <!-- Shopping cart SVG Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+            <span>Giỏ hàng</span>
+            <span class="cart-badge-topbar" id="cart-badge-val" style="display: none;">0</span>
+        </div>
         <span class="customer-account-copy"><small>Xin chào, </small><strong th:text="${fullName}">Customer</strong></span>
-        <button class="link-button" type="submit">Đăng xuất</button>
-    </form>
+        <form th:action="@{/logout}" method="post" style="margin: 0; display: inline-flex;">
+            <!-- Sign out SVG Icon -->
+            <button class="link-button" type="submit" aria-label="Đăng xuất">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            </button>
+        </form>
+    </div>
 </header>
 
 <main class="page customer-menu-page">
@@ -445,6 +1123,14 @@
                 <span>Thanh toán QR</span>
             </div>
         </div>
+        <aside class="customer-weather-card is-loading" id="customer-weather-card" aria-live="polite">
+            <div class="customer-weather-main">
+                <span class="customer-weather-label" id="weather-location">Thời tiết hôm nay</span>
+                <span class="customer-weather-desc" id="weather-description">Đang tải thời tiết...</span>
+                <span class="customer-weather-meta" id="weather-meta">Cafe Menu đang cập nhật dữ liệu mới nhất.</span>
+            </div>
+            <strong class="customer-weather-temp" id="weather-temperature">...</strong>
+        </aside>
         <form th:action="@{/customer/menu}" method="get" class="inline-search customer-search">
             <input type="hidden" name="categoryId" th:value="${selectedCategoryId}">
             <input name="keyword" th:value="${keyword}" placeholder="Cà phê, trà sữa, bánh...">
@@ -483,7 +1169,7 @@
                                 <button type="button" class="qty-btn" data-qty-action="increase" aria-label="Tăng số lượng">+</button>
                             </span>
                         </div>
-                        <button class="secondary choose-product" type="button">Chọn món</button>
+                        <button class="secondary choose-product" type="button">Thêm vào giỏ</button>
                     </div>
                 </div>
             </article>
@@ -512,20 +1198,77 @@
                 <strong id="cart-total">0 VND</strong>
             </div>
             
-            <label style="font-weight: 500; font-size: 0.9rem;">Ghi chú đơn hàng
-                <textarea name="note" rows="3" placeholder="Ít đá, không đường, nhận tại quầy..."></textarea>
-            </label>
             <button class="primary wide" id="checkout-button" type="submit" disabled>Tiếp tục thanh toán</button>
         </aside>
     </form>
+    <footer class="site-footer customer-site-footer">
+        <div class="footer-brand-block">
+            <span class="footer-mark">CM</span>
+            <div>
+                <strong>Cafe Menu</strong>
+                <p>Đặt món nhanh, nhận tại quầy hoặc thanh toán QR tiện lợi cho mỗi lần ghé quán.</p>
+            </div>
+        </div>
+        <div class="footer-info-grid">
+            <div><span>Hotline</span><a href="tel:0769479813">0769479813</a></div>
+            <div><span>Email</span><a href="mailto:manh27062005@gmail.com">manh27062005@gmail.com</a></div>
+            <div><span>Địa chỉ</span><strong>140 Lê Trọng Tấn, Tân Phú, Hồ Chí Minh</strong></div>
+            <div><span>Phục vụ</span><strong>Đồ uống tươi, thanh toán nhanh, hỗ trợ thân thiện</strong></div>
+        </div>
+    </footer>
 </main>
 
 <script>
+    (function () {
+        var weatherCard = document.getElementById("customer-weather-card");
+        if (!weatherCard || !window.fetch) {
+            return;
+        }
+
+        var location = document.getElementById("weather-location");
+        var description = document.getElementById("weather-description");
+        var meta = document.getElementById("weather-meta");
+        var temperature = document.getElementById("weather-temperature");
+
+        function round(value) {
+            return Math.round(Number(value));
+        }
+
+        fetch("/customer/api/weather", {
+            headers: {
+                "Accept": "application/json"
+            }
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error("Weather request failed");
+                }
+                return response.json();
+            })
+            .then(function (weather) {
+                weatherCard.classList.remove("is-loading", "is-error");
+                location.textContent = "Thời tiết tại " + weather.location;
+                description.textContent = weather.description;
+                temperature.textContent = round(weather.temperatureC) + "°C";
+                meta.textContent = "Cảm giác " + round(weather.apparentTemperatureC) + "°C"
+                    + " | Độ ẩm " + round(weather.humidityPercent) + "%"
+                    + " | Gió " + round(weather.windSpeedKmh) + " km/h";
+            })
+            .catch(function () {
+                weatherCard.classList.remove("is-loading");
+                weatherCard.classList.add("is-error");
+                description.textContent = "Chưa tải được thời tiết";
+                meta.textContent = "Bạn vẫn có thể đặt món bình thường.";
+                temperature.textContent = "Thử lại sau";
+            });
+    })();
+
     (function () {
         var form = document.getElementById("customer-order-form");
         var cartItems = document.getElementById("cart-items");
         var cartTotal = document.getElementById("cart-total");
         var checkoutButton = document.getElementById("checkout-button");
+        var checkoutPanel = document.querySelector(".customer-checkout-panel");
         var currencyFormatter = new Intl.NumberFormat("vi-VN");
         var cart = {};
 
@@ -575,15 +1318,29 @@
             } else {
                 cartItems.innerHTML = selected.map(function (item) {
                     return '<div class="cart-item">'
-                        + '<span><strong>' + escapeHtml(item.name) + '</strong></span>'
-                        + '<small class="text-muted">x' + item.quantity + '</small>'
-                        + '<button type="button" class="cart-remove" data-cart-id="' + item.id + '" aria-label="Bỏ khỏi giỏ">-</button>'
-                        + '<strong style="color: var(--primary-color); text-align: right;">' + formatCurrency(item.subtotal) + '</strong>'
+                        + '  <div class="cart-item-header">'
+                        + '    <span class="cart-item-name">' + escapeHtml(item.name) + '</span>'
+                        + '    <div class="cart-item-qty-container">'
+                        + '      <span class="cart-item-qty">x' + item.quantity + '</span>'
+                        + '      <button type="button" class="cart-remove" data-cart-id="' + item.id + '" aria-label="Bỏ khỏi giỏ">-</button>'
+                        + '    </div>'
+                        + '  </div>'
+                        + '  <div class="cart-item-price">' + formatCurrency(item.subtotal) + '</div>'
                         + '</div>';
                 }).join("");
             }
             cartTotal.textContent = formatCurrency(total);
             checkoutButton.disabled = selected.length === 0;
+
+            // Update topbar cart badge
+            var totalItems = selected.reduce(function (sum, item) {
+                return sum + item.quantity;
+            }, 0);
+            var cartBadge = document.getElementById("cart-badge-val");
+            if (cartBadge) {
+                cartBadge.textContent = totalItems;
+                cartBadge.style.display = totalItems > 0 ? "grid" : "none";
+            }
         }
 
         document.querySelectorAll(".qty-btn").forEach(function (button) {
@@ -651,6 +1408,14 @@
                 input.value = cart[productId] ? cart[productId].quantity : 0;
             });
         });
+
+        window.submitCartForm = function() {
+            if (checkoutButton && !checkoutButton.disabled) {
+                form.submit();
+            } else {
+                alert("Vui lòng chọn ít nhất một món để thanh toán!");
+            }
+        };
 
         renderCart();
 

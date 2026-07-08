@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Phản hồi khách hàng</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20260604-feedback')}">
+</head>
+<body class="admin-body">
+<div class="app-shell">
+    <aside class="sidebar">
+        <a class="sidebar-brand" th:href="@{/admin/dashboard}">
+            <span class="brand-symbol">CM</span>
+            <span><strong>Cafe Manager</strong><small>Admin workspace</small></span>
+        </a>
+        <nav class="side-nav">
+            <a th:href="@{/admin/dashboard}"><span class="nav-icon">01</span>Dashboard</a>
+            <a th:href="@{/admin}"><span class="nav-icon">02</span>Tổng quan</a>
+            <a th:href="@{/admin/products}"><span class="nav-icon">03</span>Sản phẩm</a>
+            <a th:href="@{/admin/staff}"><span class="nav-icon">04</span>Nhân viên</a>
+            <a th:href="@{/admin/orders}"><span class="nav-icon">05</span>Đơn hàng</a>
+            <a th:href="@{/admin/customers}"><span class="nav-icon">06</span>Khách hàng</a>
+            <a class="active" th:href="@{/admin/feedback}"><span class="nav-icon">07</span>Phản hồi</a>
+        </nav>
+        <div class="sidebar-footer">
+            <span>Đăng nhập bởi</span>
+            <strong th:text="${fullName}">Admin</strong>
+            <form th:action="@{/logout}" method="post">
+                <button class="ghost wide" type="submit">Đăng xuất</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="admin-main wide-admin">
+        <div th:if="${success}" class="alert success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert danger" th:text="${error}"></div>
+        <div th:if="${loadError}" class="alert danger" th:text="'Lỗi tải dữ liệu: ' + ${loadError}"></div>
+
+        <section class="admin-page-head">
+            <div>
+                <p class="eyebrow">Phản hồi</p>
+                <h1>Góp ý từ khách hàng</h1>
+                <p>Xem lý do khách phản hồi và mong muốn cải thiện để ưu tiên xử lý dịch vụ, menu và quy trình phục vụ.</p>
+            </div>
+        </section>
+
+        <section class="metric-grid">
+            <article class="metric-card revenue"><span>Tổng phản hồi</span><strong th:text="${feedbackCount ?: 0}">0</strong><small>Toàn bộ góp ý đã ghi nhận</small></article>
+            <article class="metric-card"><span>Hiển thị gần đây</span><strong th:text="${#lists.size(feedbackList)}">0</strong><small>Sắp xếp theo thời gian mới nhất</small></article>
+            <article class="metric-card"><span>Kênh nhận</span><strong>Web</strong><small>Khách gửi từ trang customer</small></article>
+            <article class="metric-card"><span>Ưu tiên</span><strong>Dịch vụ</strong><small>Tập trung trải nghiệm khách hàng</small></article>
+        </section>
+
+        <section class="data-panel full-panel">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Danh sách</p>
+                    <h2>Phản hồi mới nhất</h2>
+                </div>
+            </div>
+            <div class="feedback-list">
+                <article th:if="${#lists.isEmpty(feedbackList)}" class="empty-state">Chưa có phản hồi nào.</article>
+                <article class="feedback-card" th:each="feedback : ${feedbackList}">
+                    <div class="feedback-card-head">
+                        <div>
+                            <p class="eyebrow" th:text="'Phản hồi #' + ${feedback.feedbackId}">Phản hồi #1</p>
+                            <h3 th:text="${feedback.customerName}">Khách hàng</h3>
+                        </div>
+                        <span class="badge muted" th:text="${feedback.createdAt}">Thời gian</span>
+                    </div>
+                    <div class="feedback-meta">
+                        <span th:text="${feedback.customerPhone}">SĐT</span>
+                        <span th:text="${feedback.customerEmail != null && !feedback.customerEmail.isBlank() ? feedback.customerEmail : 'Chưa có email'}">Email</span>
+                    </div>
+                    <div class="feedback-content">
+                        <div>
+                            <span>Lý do</span>
+                            <p th:text="${feedback.reason}">Lý do phản hồi</p>
+                        </div>
+                        <div>
+                            <span>Mong muốn</span>
+                            <p th:text="${feedback.expectation}">Mong muốn góp ý</p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <footer class="site-footer admin-site-footer">
+            <div class="admin-footer-left">
+                <div class="admin-footer-brand">
+                    <span class="admin-footer-mark">CM</span>
+                    <div>
+                        <strong>Hệ thống Quản trị Cafe Manager</strong>
+                        <p>Bản quyền &copy; 2026 Cafe Manager. Đã đăng ký bản quyền thương hiệu.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="admin-footer-right">
+                <div class="admin-system-info">
+                    <span class="system-badge">Bản phát hành: v1.2.0-stable</span>
+                    <span class="status-indicator-wrap">
+                        <span class="status-dot-active"></span>
+                        Trạng thái: Hoạt động bình thường
+                    </span>
+                </div>
+                <div class="admin-server-time">
+                    <span>Thời gian hệ thống:</span>
+                    <strong id="server-time-display">--/--/---- --:--</strong>
+                </div>
+            </div>
+            <script>
+                (function() {
+                    var updateTime = function() {
+                        var now = new Date();
+                        var pad = function(n) { return n < 10 ? '0' + n : n; };
+                        var display = pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear() + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+                        var el = document.getElementById("server-time-display");
+                        if (el) el.textContent = display;
+                    };
+                    updateTime();
+                    setInterval(updateTime, 30000);
+                })();
+            </script>
+        </footer>
+    </main>
+</div>
+</body>
+</html>

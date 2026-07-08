@@ -3,20 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Staff POS</title>
-    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <title>Quầy phục vụ POS - Cafe Manager</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20260604-pos')}">
 </head>
 <body class="staff-body">
 <header class="topbar staff-topbar">
-    <a class="brand-link" th:href="@{/staff/pos}">Cafe POS</a>
-    <nav>
-        <a class="active" th:href="@{/staff/pos}">Đơn chờ</a>
-        <a th:href="@{/admin/dashboard}">Admin</a>
+    <a class="brand-link" th:href="@{/staff/pos}">
+        <span class="brand-symbol">POS</span>
+        <span><strong>Cafe POS</strong><small>Quầy phục vụ</small></span>
+    </a>
+    <nav class="staff-nav">
+        <a class="active" th:href="@{/staff/pos}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Đơn chờ
+        </a>
+        <a th:href="@{/admin/dashboard}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+            Quản trị Admin
+        </a>
     </nav>
-    <form th:action="@{/logout}" method="post">
-        <span th:text="${fullName}">Staff</span>
-        <button class="link-button" type="submit">Đăng xuất</button>
-    </form>
+    <div class="staff-user-menu">
+        <div class="user-badge-info">
+            <span class="user-avatar" th:text="${#strings.substring(fullName != null ? fullName : 'Staff', 0, 1).toUpperCase()}">S</span>
+            <span th:text="${fullName}">Staff</span>
+        </div>
+        <form th:action="@{/logout}" method="post">
+            <button class="logout-btn" type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                Đăng xuất
+            </button>
+        </form>
+    </div>
 </header>
 
 <main class="page staff-page">
@@ -33,22 +50,40 @@
         </div>
         <div class="staff-hero-actions">
             <span class="live-pill"><span></span> Realtime đang bật</span>
-            <a class="ghost" th:href="@{/staff/pos}">Tải lại</a>
+            <a class="ghost-btn-new" th:href="@{/staff/pos}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                Tải lại dữ liệu
+            </a>
         </div>
     </section>
 
     <section class="staff-metric-grid">
-        <article>
-            <span>Đơn đang chờ</span>
-            <strong th:text="${pendingOrdersCount ?: 0}">0</strong>
+        <article class="metric-card-pos pending-orders">
+            <div class="metric-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div class="metric-body">
+                <span>Đơn đang chờ</span>
+                <strong th:text="${pendingOrdersCount ?: 0}">0</strong>
+            </div>
         </article>
-        <article>
-            <span>Tổng món</span>
-            <strong th:text="${pendingItemsCount ?: 0}">0</strong>
+        <article class="metric-card-pos pending-items">
+            <div class="metric-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+            </div>
+            <div class="metric-body">
+                <span>Tổng món</span>
+                <strong th:text="${pendingItemsCount ?: 0}">0</strong>
+            </div>
         </article>
-        <article>
-            <span>Tổng tạm tính</span>
-            <strong th:text="${pendingTotalFormatted}">0 VND</strong>
+        <article class="metric-card-pos pending-revenue">
+            <div class="metric-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+            <div class="metric-body">
+                <span>Tổng tạm tính</span>
+                <strong th:text="${pendingTotalFormatted}">0 VND</strong>
+            </div>
         </article>
     </section>
 
@@ -73,17 +108,32 @@
             <article class="order-card staff-order-card" th:each="order : ${pendingOrders}">
                 <div class="order-card-head">
                     <div>
-                        <p class="eyebrow" th:text="'Đơn #' + ${order.orderId}">Đơn #1</p>
-                        <h2 th:text="${order.customerName != null ? order.customerName : 'Khách hàng'}">Khách hàng</h2>
-                        <p class="hint" th:text="${order.customerNote != null && !order.customerNote.isBlank() ? order.customerNote : 'Không có ghi chú'}">Ghi chú</p>
-                        <p class="order-time-line" th:text="'Thời gian đặt: ' + ${order.orderTimeText}">Thời gian đặt</p>
-                        <div class="staff-order-tags">
-                            <span th:text="${order.orderTypeText}">Nhận tại quầy</span>
-                            <span th:text="${order.requestedPaymentMethodText}">MoMo QR</span>
+                        <div class="order-id-customer-row">
+                            <span class="order-id-badge" th:text="'Đơn #' + ${order.orderId}">#1</span>
+                            <h2 class="customer-name" th:text="${order.customerName != null ? order.customerName : 'Khách hàng'}">Khách hàng</h2>
                         </div>
-                        <p class="delivery-note"
-                           th:if="${order.deliveryAddress != null && !order.deliveryAddress.isBlank()}"
-                           th:text="'Giao đến: ' + ${order.deliveryAddress}">Giao đến</p>
+                        
+                        <!-- Ghi chú được thiết kế nổi bật như hộp cảnh báo màu vàng nếu có nội dung -->
+                        <div class="staff-order-note-box" th:if="${order.customerNote != null && !order.customerNote.isBlank()}">
+                            <div class="note-box-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                                <span>Ghi chú từ khách hàng:</span>
+                            </div>
+                            <p class="note-box-content" th:text="${order.customerNote}"></p>
+                        </div>
+                        
+                        <p class="order-time-line">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            <span th:text="'Thời gian đặt: ' + ${order.orderTimeText}">Thời gian đặt</span>
+                        </p>
+                        <div class="staff-order-tags">
+                            <span class="tag-order-type" th:text="${order.orderTypeText}">Nhận tại quầy</span>
+                            <span class="tag-payment-method" th:text="${order.requestedPaymentMethodText}">MoMo QR</span>
+                        </div>
+                        <div class="delivery-address-row" th:if="${order.deliveryAddress != null && !order.deliveryAddress.isBlank()}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                            <span th:text="'Giao đến: ' + ${order.deliveryAddress}">Giao đến</span>
+                        </div>
                     </div>
                     <div class="order-total-box">
                         <span>Tạm tính</span>
@@ -93,9 +143,11 @@
 
                 <div class="order-items staff-order-items">
                     <div class="order-item" th:each="item : ${order.details}">
-                        <span th:text="${item.productName}">Món</span>
-                        <small th:text="'x' + ${item.quantity}">x1</small>
-                        <strong th:text="${item.subtotalFormatted}">0 VND</strong>
+                        <div class="order-item-main">
+                            <span class="item-name" th:text="${item.productName}">Món</span>
+                            <span class="item-qty-badge" th:text="'x' + ${item.quantity}">x1</span>
+                        </div>
+                        <span class="item-subtotal" th:text="${item.subtotalFormatted}">0 VND</span>
                     </div>
                 </div>
 
@@ -108,19 +160,65 @@
                         <form th:action="@{/staff/checkout}" method="post">
                             <input type="hidden" name="orderId" th:value="${order.orderId}">
                             <input type="hidden" name="method" th:value="${order.requestedPaymentMethodOrDefault}">
-                            <button class="primary" type="submit">Xác nhận đơn</button>
+                            <button class="btn-confirm-pos" type="submit">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                Xác nhận đơn
+                            </button>
                         </form>
                         <form th:action="@{/staff/cancel}" method="post"
                               onsubmit="return confirm('Hủy đơn này?');">
                             <input type="hidden" name="orderId" th:value="${order.orderId}">
-                            <button class="danger-button" type="submit">Hủy đơn</button>
+                            <button class="btn-cancel-pos" type="submit">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                Hủy đơn
+                            </button>
                         </form>
                     </div>
                 </div>
             </article>
         </section>
     </section>
+
+    <!-- Footer Quản trị Admin -->
+    <footer class="site-footer admin-site-footer">
+        <div class="admin-footer-left">
+            <div class="admin-footer-brand">
+                <span class="admin-footer-mark">CM</span>
+                <div>
+                    <strong>Hệ thống Quản trị Cafe Manager</strong>
+                    <p>Bản quyền &copy; 2026 Cafe Manager. Đã đăng ký bản quyền thương hiệu.</p>
+                </div>
+            </div>
+        </div>
+        <div class="admin-footer-right">
+            <div class="admin-system-info">
+                <span class="system-badge">Bản phát hành: v1.2.0-stable</span>
+                <span class="status-indicator-wrap">
+                    <span class="status-dot-active"></span>
+                    Trạng thái: Hoạt động bình thường
+                </span>
+            </div>
+            <div class="admin-server-time">
+                <span>Thời gian hệ thống:</span>
+                <strong id="server-time-display">--/--/---- --:--</strong>
+            </div>
+        </div>
+        <script>
+            (function() {
+                var updateTime = function() {
+                    var now = new Date();
+                    var pad = function(n) { return n < 10 ? '0' + n : n; };
+                    var display = pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear() + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+                    var el = document.getElementById("server-time-display");
+                    if (el) el.textContent = display;
+                };
+                updateTime();
+                setInterval(updateTime, 30000);
+            })();
+        </script>
+    </footer>
 </main>
+
 <script>
     (function () {
         var alertBox = document.getElementById("order-notification");

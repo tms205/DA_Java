@@ -1,6 +1,7 @@
 package com.huit.da_java.controller;
 
 import com.huit.da_java.dao.CustomerDAO;
+import com.huit.da_java.dao.FeedbackDAO;
 import com.huit.da_java.dao.OrderDAO;
 import com.huit.da_java.dao.ProductDAO;
 import com.huit.da_java.dao.UserDAO;
@@ -31,6 +32,7 @@ public class AdminController {
     private final UserDAO userDAO;
     private final OrderDAO orderDAO;
     private final CustomerDAO customerDAO;
+    private final FeedbackDAO feedbackDAO;
     private final OrderNotificationService orderNotificationService;
     private final ProductImageStorageService productImageStorageService;
 
@@ -38,12 +40,14 @@ public class AdminController {
                            UserDAO userDAO,
                            OrderDAO orderDAO,
                            CustomerDAO customerDAO,
+                           FeedbackDAO feedbackDAO,
                            OrderNotificationService orderNotificationService,
                            ProductImageStorageService productImageStorageService) {
         this.productDAO = productDAO;
         this.userDAO = userDAO;
         this.orderDAO = orderDAO;
         this.customerDAO = customerDAO;
+        this.feedbackDAO = feedbackDAO;
         this.orderNotificationService = orderNotificationService;
         this.productImageStorageService = productImageStorageService;
     }
@@ -211,6 +215,25 @@ public class AdminController {
             model.addAttribute("paymentStats", List.of());
         }
         return "admin-orders";
+    }
+
+    @GetMapping("/admin/feedback")
+    public String feedback(HttpSession session,
+                           Model model,
+                           RedirectAttributes redirectAttributes) {
+        if (!requireAdmin(session, redirectAttributes)) {
+            return "redirect:/login";
+        }
+        addBaseModel(session, model, "feedback");
+        try {
+            model.addAttribute("feedbackList", feedbackDAO.getRecent(80));
+            model.addAttribute("feedbackCount", feedbackDAO.countAll());
+        } catch (Exception ex) {
+            addLoadError(model, ex);
+            model.addAttribute("feedbackList", List.of());
+            model.addAttribute("feedbackCount", 0);
+        }
+        return "admin-feedback";
     }
 
     @PostMapping("/admin/products")

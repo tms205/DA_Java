@@ -1,0 +1,68 @@
+================================================================================
+THÔNG TIN CHI TIẾT ĐỒ ÁN: CAFE MANAGEMENT WEB (HỆ THỐNG QUẢN LÝ QUÁN CÀ PHÊ)
+================================================================================
+
+1.1 TÊN DỰ ÁN:
+   Cafe Management Web - Hệ thống quản lý quán cà phê.
+
+--------------------------------------------------------------------------------
+
+1.2 MỤC TIÊU:
+   * Về kỹ thuật:
+     - Xây dựng ứng dụng Web hoàn chỉnh bằng ngôn ngữ Java dựa trên framework Spring Boot.
+     - Áp dụng mô hình kiến trúc MVC (Model - View - Controller) nhằm phân tách rõ ràng giao diện, logic nghiệp vụ và truy xuất dữ liệu.
+     - Sử dụng công nghệ Template Engine Thymeleaf để kết xuất giao diện HTML động phía Server-side.
+     - Giao tiếp cơ sở dữ liệu: Dự án sử dụng JDBC thuần (Java Database Connectivity) kết hợp với mô hình DAO (Data Access Object) và gọi các Stored Procedure, Function trực tiếp trên hệ quản trị cơ sở dữ liệu MS SQL Server thay vì sử dụng JPA/Hibernate.
+     - Áp dụng kỹ thuật nâng cao: Xây dựng cơ chế thông báo đơn hàng thời gian thực (Realtime Notification) sử dụng giải pháp Server-Sent Events (SSE) thông qua SseEmitter của Spring MVC. Nhờ đó, máy chủ có thể gửi sự kiện đơn hàng mới tức thời đến màn hình bán hàng của nhân viên.
+     - Kiểm thử: Viết và chạy các Unit Test bằng JUnit 5 cho phần xử lý sự kiện realtime (SSE).
+
+   * Về nghiệp vụ thực tế:
+     - Hỗ trợ số hóa quy trình vận hành và quản lý của một quán cà phê quy mô vừa và nhỏ (mô hình Takeaway & tại quầy).
+     - Khách hàng (Customer): Có thể đăng ký tài khoản (qua xác thực OTP email), đăng nhập, xem thực đơn (menu), thêm sản phẩm vào giỏ hàng, đặt hàng trực tuyến và nhận thông tin thanh toán chuyển khoản.
+     - Nhân viên (Staff): Tiếp nhận thông báo đơn hàng mới tức thời (realtime), xử lý đơn, hủy đơn hoặc thực hiện thanh toán hóa đơn cho khách.
+     - Quản trị viên (Admin): Theo dõi hoạt động kinh doanh tổng quát qua Dashboard (thống kê doanh thu, số đơn, thống kê sản phẩm bán chạy); quản lý thông tin và trạng thái nhân viên (kích hoạt/khóa tài khoản); quản lý danh mục và thông tin sản phẩm (thêm, sửa, ẩn/hiện sản phẩm).
+
+--------------------------------------------------------------------------------
+
+1.3 PHẠM VI:
+   * Những gì hệ thống giải quyết:
+     - Phân quyền sử dụng chi tiết cho 3 đối tượng: Admin (Quản lý), Staff (Nhân viên), và Customer (Khách hàng).
+     - Xác thực & Đăng ký: Đăng nhập bằng tài khoản/số điện thoại dựa trên HttpSession của Spring Boot. Khách hàng mới khi đăng ký tài khoản cần nhập đúng mã xác thực OTP gửi về địa chỉ Email cá nhân (tích hợp Gmail SMTP).
+     - Đặt món & Giỏ hàng: Khách hàng tự do chọn món từ menu trực tuyến, nhập số lượng, chọn hình thức nhận hàng (tại quán / giao tận nhà), nhập địa chỉ giao hàng và gửi đơn hàng lên hệ thống.
+     - Quản lý đơn realtime: Khi khách đặt hàng thành công, sự kiện realtime được bắn trực tiếp đến màn hình POS của nhân viên để kịp thời chuẩn bị. Nhân viên xác nhận thanh toán hoặc hủy đơn ngay trên trình duyệt.
+     - Thanh toán không tiền mặt bằng QR Code: Tự động tạo mã QR thanh toán (Momo/VietQR) hiển thị trực tiếp cho khách hàng dựa trên thông tin đơn hàng (số tiền, nội dung chuyển khoản tự động).
+     - Quản trị nghiệp vụ: Admin quản lý nhân viên (thêm nhân viên mới, cập nhật thông tin, đảo trạng thái hoạt động) và quản lý sản phẩm (thêm/sửa sản phẩm, upload ảnh sản phẩm, đổi danh mục sản phẩm).
+
+   * Các giới hạn (Nằm ngoài phạm vi của hệ thống):
+     - Chưa tích hợp các cổng thanh toán điện tử thực tế (như API chính thức của VNPay, MoMo, ZaloPay có IPN phản hồi tự động). Hiện tại chỉ dừng lại ở việc sinh mã QR chuyển khoản tĩnh để khách hàng quét chuyển khoản thủ công.
+     - Chưa có tính năng quản lý chi tiết nguyên vật liệu, hàng tồn kho (chỉ quản lý danh mục sản phẩm hoàn thiện trên thực đơn).
+     - Chưa hỗ trợ giao diện trên ứng dụng di động riêng biệt (Mobile App). Hệ thống hiện tại hoàn toàn là Web Responsive (dùng trên trình duyệt máy tính hoặc điện thoại).
+     - Bảo mật nâng cao: Chưa sử dụng thư viện Spring Security cho tầng xác thực và phân quyền (mới chỉ kiểm tra session thủ công qua các bộ lọc interceptor/controller logic và dùng thư viện mã hóa mật khẩu cơ bản).
+
+--------------------------------------------------------------------------------
+
+1.4 CÔNG NGHỆ SỬ DỤNG:
+   * Ngôn ngữ & Nền tảng:
+     - Java JDK 21+.
+     - Maven 3.9+ (quản lý thư viện và vòng đời dự án).
+   * Framework & Thư viện Core:
+     - Spring Boot 3.3.5.
+     - Spring Web (xây dựng RESTful API, Routing, HTTP Session).
+     - Spring MVC & Thymeleaf Engine (render giao diện HTML động phía Server).
+     - Spring Boot Starter Validation (ràng buộc dữ liệu đầu vào).
+     - Spring Boot Starter Mail (gửi email OTP qua SMTP Gmail).
+     - Spring Security Crypto (mã hóa mật khẩu).
+   * Cơ sở dữ liệu:
+     - Microsoft SQL Server (Hệ quản trị CSDL).
+     - JDBC API (Driver: mssql-jdbc-12.6.1.jre11) thực hiện kết nối và thực thi SQL trực tiếp.
+     - Sử dụng Stored Procedures, Trigger và Functions trong SQL Server (Ví dụ: sp_LoginStaff, sp_RegisterStaff, sp_LoginCustomer, sp_RegisterCustomer, sp_CreateOrder, sp_AddProductToOrder, sp_PayOrder).
+   * Giao diện & Tương tác:
+     - HTML5, CSS3 (sử dụng file phong cách app.css chung của toàn hệ thống).
+     - Vanilla JavaScript (xử lý logic giỏ hàng ở client và bắt sự kiện SSE).
+     - Server-Sent Events (SSE) sử dụng class SseEmitter để cập nhật đơn hàng realtime.
+   * Thư viện bổ trợ:
+     - ZXing (com.google.zxing:core & javase phiên bản 3.5.3) dùng để tạo ảnh QR Code thanh toán định dạng PNG tự động từ chuỗi dữ liệu đầu vào.
+   * Công cụ phát triển:
+     - IDE: VS Code / IntelliJ IDEA / NetBeans.
+     - Database Tool: SQL Server Management Studio (SSMS).
+================================================================================

@@ -4,8 +4,10 @@ com\huit\da_java\service\OrderNotificationServiceTest$FailingEmitter.class
 com\huit\da_java\service\OrderNotificationServiceTest.class
 com\huit\da_java\service\OtpServiceTest$MutableClock.class
 com\huit\da_java\controller\LoginControllerPageTest.class
+com\huit\da_java\service\WeatherServiceTest.class
 com\huit\da_java\model\CategoryShareItemTest.class
 com\huit\da_java\service\CustomerPasswordServiceTest.class
+com\huit\da_java\controller\CustomerControllerNotificationTest.class
 com\huit\da_java\service\OtpServiceTest.class
 com\huit\da_java\service\VietQrPayloadServiceTest.class
 com\huit\da_java\service\ProductImageStorageServiceTest.class

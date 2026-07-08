@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Phản hồi khách hàng</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20260604-feedback')}">
+    <style>
+        /* --- TÔNG MÀU CAFE ẤM ÁP --- */
+        :root {
+            --primary-color: #B84A00;
+            --primary-hover: #8A3300;
+            --accent-color: #E2A77D;
+            --bg-light: #FFFDF8;
+            --text-dark: #7A2E00;
+            --text-muted: #A24A13;
+            --border-color: #E9DFD2;
+            --shadow-sm: 0 4px 14px rgba(67, 32, 8, 0.05);
+            --shadow-md: 0 14px 30px rgba(67, 32, 8, 0.10);
+        }
+
+        body.customer-page {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+
+        /* --- TOPBAR HEADER --- */
+        .customer-topbar {
+            min-height: 84px;
+            padding: 0 30px;
+            display: grid;
+            grid-template-columns: minmax(260px, 1fr) auto minmax(260px, 1fr);
+            gap: 24px;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 1px 0 rgba(122, 46, 0, 0.10);
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-sizing: border-box;
+        }
+
+        .customer-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .customer-brand-mark {
+            width: 50px;
+            height: 50px;
+            display: grid;
+            place-items: center;
+            border-radius: 16px;
+            padding: 0;
+            background: #a84300;
+            color: #fff;
+            font-size: 0;
+            box-shadow: 0 10px 22px rgba(122, 46, 0, 0.16);
+        }
+
+        .customer-brand-mark::before {
+            content: "☕";
+            font-size: 24px;
+        }
+
+        .customer-brand strong {
+            color: #7a2e00;
+            font-size: 23px;
+            line-height: 1;
+            display: block;
+        }
+
+        .customer-brand small {
+            color: #c25a05 !important;
+            font-size: 0;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .customer-brand small::after {
+            content: "Premium Coffee Shop";
+            font-size: 14px;
+        }
+
+        .customer-topbar nav {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+        }
+
+        .customer-topbar nav a {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 45px;
+            border-radius: 9px;
+            border: 0;
+            padding: 10px 26px;
+            color: #1f1f1f;
+            background: transparent;
+            font-size: 17px;
+            font-weight: 850;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        .customer-topbar nav a:hover {
+            color: var(--primary-color);
+        }
+
+        .customer-topbar nav a.active {
+            background: #c64a00;
+            color: #fff;
+        }
+
+        .customer-account-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            justify-content: flex-end;
+        }
+
+        .customer-account-copy {
+            color: #7a2e00;
+            text-align: right;
+            display: block;
+        }
+
+        .customer-account-copy small {
+            color: #c25a05;
+            font-size: 13px;
+            display: block;
+        }
+
+        .customer-account-copy strong {
+            font-size: 18px;
+            display: block;
+        }
+
+        .link-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            border: 1px solid #c64a00;
+            background: transparent;
+            color: #c64a00;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0;
+        }
+
+        .link-button:hover {
+            background: #c64a00;
+            color: #fff;
+        }
+
+        /* --- HERO BANNER --- */
+        .customer-feedback-page {
+            width: 100%;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .customer-feedback-hero-new {
+            background: linear-gradient(135deg, #FFFDF6 0%, #FFF3D1 100%);
+            padding: 4rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1.25rem;
+            margin-bottom: 3rem;
+            box-sizing: border-box;
+        }
+
+        .feedback-hero-icon {
+            background: #b84a00;
+            color: white;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 8px 20px rgba(184, 74, 0, 0.2);
+        }
+
+        .customer-feedback-hero-new h1 {
+            color: #7a2e00;
+            font-size: clamp(32px, 4vw, 46px);
+            margin: 0;
+            font-weight: 800;
+        }
+
+        .customer-feedback-hero-new p {
+            max-width: 680px;
+            color: #a24a13;
+            font-size: 1.05rem;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* --- ALERT --- */
+        .alert {
+            padding: 1rem;
+            margin: 1.5rem auto;
+            border-radius: 10px;
+            font-weight: 500;
+            max-width: 760px;
+            box-sizing: border-box;
+        }
+        .alert.success { background: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; }
+        .alert.danger { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+
+        /* --- FORM CARD --- */
+        .feedback-form-panel-new {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #E9DFD2;
+            padding: 2.5rem;
+            max-width: 760px;
+            margin: 0 auto 3rem auto;
+            box-shadow: 0 10px 30px rgba(67, 32, 8, 0.04);
+            box-sizing: border-box;
+        }
+
+        .form-panel-header {
+            margin-bottom: 2rem;
+        }
+
+        .form-panel-header h2 {
+            color: #7a2e00;
+            font-size: 24px;
+            margin: 0 0 0.5rem 0;
+            font-weight: 750;
+        }
+
+        .form-panel-header p {
+            color: #a24a13;
+            margin: 0;
+            font-size: 15px;
+        }
+
+        .feedback-form-new {
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            color: #7a2e00;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .form-group label .required {
+            color: #b84a00;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            min-height: 110px;
+            box-sizing: border-box;
+            background: #F1F3F5;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            padding: 1rem;
+            font-family: inherit;
+            font-size: 15px;
+            color: #7a2e00;
+            resize: vertical;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-group textarea:focus {
+            background: white;
+            border-color: #b84a00;
+            box-shadow: 0 0 0 3px rgba(184, 74, 0, 0.1);
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #a24a13;
+            margin-top: 0.25rem;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .submit-feedback-btn {
+            background: #b84a00;
+            color: white;
+            border: none;
+            padding: 0.85rem 2rem;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .submit-feedback-btn:hover {
+            background: #8A3300;
+        }
+
+        /* --- FEATURE BOXES --- */
+        .feedback-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            max-width: 980px;
+            margin: 0 auto 4rem auto;
+            padding: 0 1.5rem;
+            box-sizing: border-box;
+        }
+
+        .feature-box {
+            background: #FFFDFA;
+            border: 1px solid #FFE7D6;
+            border-radius: 16px;
+            padding: 2.2rem 1.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.85rem;
+            box-shadow: 0 4px 12px rgba(67, 32, 8, 0.02);
+            box-sizing: border-box;
+        }
+
+        .feature-icon {
+            background: #b84a00;
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 4px 10px rgba(184, 74, 0, 0.15);
+        }
+
+        .feature-box h3 {
+            color: #7a2e00;
+            font-size: 19px;
+            margin: 0;
+            font-weight: 750;
+        }
+
+        .feature-box p {
+            color: #a24a13;
+            font-size: 14px;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        /* --- FOOTER --- */
+        .customer-site-footer {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr 1fr 1fr;
+            gap: 46px;
+            margin: 20px 0 0;
+            border: 0;
+            border-radius: 0;
+            padding: 58px 30px 44px;
+            background: #722700;
+            color: #ffe8c4;
+            box-shadow: none;
+            box-sizing: border-box;
+        }
+
+        .customer-site-footer .footer-brand-block {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 16px;
+        }
+
+        .customer-site-footer .footer-mark {
+            background: rgba(255,255,255,0.12);
+            flex: 0 0 auto;
+            width: 46px;
+            height: 46px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            color: #fff;
+            font-weight: 950;
+        }
+
+        .customer-site-footer .footer-brand-block strong,
+        .customer-site-footer .footer-info-grid strong,
+        .customer-site-footer .footer-info-grid a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .customer-site-footer .footer-brand-block p,
+        .customer-site-footer .footer-info-grid span {
+            color: #ffe1a6;
+        }
+
+        .customer-site-footer .footer-info-grid {
+            display: contents;
+        }
+
+        .customer-site-footer .footer-info-grid div:nth-child(2) {
+            display: none;
+        }
+
+        .customer-site-footer .footer-info-grid div {
+            border: 0;
+            padding: 0;
+            background: transparent;
+        }
+
+        .customer-site-footer .footer-info-grid span {
+            margin-bottom: 14px;
+            font-size: 22px;
+            font-weight: 900;
+            text-transform: none;
+            display: block;
+        }
+
+        .customer-site-footer .footer-info-grid div:first-child span {
+            font-size: 0;
+        }
+
+        .customer-site-footer .footer-info-grid div:first-child span::after {
+            content: "Liên hệ";
+            font-size: 22px;
+        }
+
+        .customer-site-footer .footer-info-grid div:first-child a::before {
+            content: "Hotline\A";
+            white-space: pre-line;
+        }
+
+        .customer-site-footer .footer-info-grid div:first-child a::after {
+            content: "\A Email\A manh27062005@gmail.com";
+            white-space: pre-line;
+        }
+
+        .customer-site-footer .footer-info-grid a,
+        .customer-site-footer .footer-info-grid strong {
+            font-size: 17px;
+            font-weight: 500;
+            line-height: 1.8;
+            display: block;
+        }
+
+        /* --- RESPONSIVE MEDIA QUERIES --- */
+        @media (max-width: 980px) {
+            .customer-topbar {
+                grid-template-columns: 1fr;
+                gap: 14px;
+                padding: 14px 18px;
+            }
+
+            .customer-topbar nav {
+                justify-content: flex-start;
+            }
+
+            .customer-account-bar {
+                justify-content: flex-start;
+            }
+
+            .feedback-form-panel-new {
+                padding: 1.75rem;
+                margin: 0 1rem 2rem 1rem;
+            }
+
+            .feedback-features {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                margin-bottom: 3rem;
+            }
+
+            .customer-site-footer {
+                grid-template-columns: 1fr 1fr;
+                padding: 40px 20px;
+                gap: 30px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .customer-topbar nav a {
+                padding: 10px 18px;
+                font-size: 15px;
+            }
+
+            .customer-feedback-hero-new {
+                padding: 3rem 1rem;
+            }
+
+            .customer-site-footer {
+                grid-template-columns: 1fr;
+                gap: 26px;
+            }
+        }
+    </style>
+</head>
+<body class="customer-page">
+<header class="topbar customer-topbar">
+    <a class="brand-link customer-brand" th:href="@{/customer/menu}">
+        <span class="customer-brand-mark">CM</span>
+        <span><strong>Cafe Menu</strong><small>Góp ý dịch vụ</small></span>
+    </a>
+    <nav>
+        <a th:href="@{/customer/menu}">
+            <!-- Hamburger SVG Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            Thực đơn
+        </a>
+        <a class="active" th:href="@{/customer/feedback}">
+            <!-- Chat bubble SVG Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 4px;"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
+            Phản hồi
+        </a>
+    </nav>
+    <form class="customer-account-bar" th:action="@{/logout}" method="post">
+        <span class="customer-account-copy"><small>Xin chào, </small><strong th:text="${fullName}">Customer</strong></span>
+        <!-- Sign out SVG Icon -->
+        <button class="link-button" type="submit" aria-label="Đăng xuất">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </button>
+    </form>
+</header>
+
+<main class="page customer-feedback-page">
+    <div th:if="${success}" class="alert success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert danger" th:text="${error}"></div>
+
+    <!-- Banner Hero -->
+    <section class="customer-feedback-hero-new">
+        <div class="feedback-hero-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
+        </div>
+        <h1>Góp ý dịch vụ</h1>
+        <p>Hãy cho quán biết điều làm bạn chưa hài lòng và mong muốn cải thiện. Admin sẽ nhận được phản hồi này trong trang quản trị.</p>
+    </section>
+
+    <!-- Form Panel Card -->
+    <section class="feedback-form-panel-new">
+        <div class="form-panel-header">
+            <h2>Gửi phản hồi cho quán</h2>
+            <p>Mọi ý kiến đóng góp của bạn đều rất quan trọng với chúng tôi</p>
+        </div>
+        <form th:action="@{/customer/feedback}" method="post" class="feedback-form-new">
+            <div class="form-group">
+                <label for="reason">Lý do phản hồi <span class="required">*</span></label>
+                <textarea id="reason" name="reason" maxlength="500" required
+                          placeholder="Ví dụ: món lên hơi chậm, đồ uống chưa đúng vị, thái độ phục vụ..."></textarea>
+                <div class="char-counter" id="reason-counter">0/500 ký tự</div>
+            </div>
+            <div class="form-group">
+                <label for="expectation">Mong muốn góp ý <span class="required">*</span></label>
+                <textarea id="expectation" name="expectation" maxlength="1000" required
+                          placeholder="Ví dụ: mong quán cải thiện tốc độ phục vụ, thêm lựa chọn ít ngọt, cập nhật trạng thái đơn rõ hơn..."></textarea>
+                <div class="char-counter" id="expectation-counter">0/1000 ký tự</div>
+            </div>
+            <div class="form-actions">
+                <button class="submit-feedback-btn" type="submit">Gửi phản hồi</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Three Highlight Boxes -->
+    <section class="feedback-features">
+        <div class="feature-box">
+            <div class="feature-icon">
+                <!-- Check circle SVG -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <h3>Phản hồi nhanh</h3>
+            <p>Chúng tôi sẽ xem xét trong 24h</p>
+        </div>
+        <div class="feature-box">
+            <div class="feature-icon">
+                <!-- Lock / Privacy SVG -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            <h3>Bảo mật thông tin</h3>
+            <p>Thông tin của bạn được bảo vệ</p>
+        </div>
+        <div class="feature-box">
+            <div class="feature-icon">
+                <!-- Send / Paper plane SVG -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </div>
+            <h3>Cải thiện liên tục</h3>
+            <p>Góp ý giúp chúng tôi tốt hơn</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer customer-site-footer">
+        <div class="footer-brand-block">
+            <span class="footer-mark">CM</span>
+            <div>
+                <strong>Cafe Menu</strong>
+                <p>Đặt món nhanh, nhận tại quầy hoặc thanh toán QR tiện lợi cho mỗi lần ghé quán.</p>
+            </div>
+        </div>
+        <div class="footer-info-grid">
+            <div><span>Hotline</span><a href="tel:0769479813">0769479813</a></div>
+            <div><span>Email</span><a href="mailto:manh27062005@gmail.com">manh27062005@gmail.com</a></div>
+            <div><span>Địa chỉ</span><strong>140 Lê Trọng Tấn, Tân Phú, Hồ Chí Minh</strong></div>
+            <div><span>Phục vụ</span><strong>Đồ uống tươi, thanh toán nhanh, hỗ trợ thân thiện</strong></div>
+        </div>
+    </footer>
+</main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var reasonTextarea = document.getElementById("reason");
+        var expectationTextarea = document.getElementById("expectation");
+        
+        var reasonCounter = document.getElementById("reason-counter");
+        var expectationCounter = document.getElementById("expectation-counter");
+        
+        function updateCounter(textarea, counter, max) {
+            var len = textarea.value.length;
+            counter.textContent = len + "/" + max + " ký tự";
+        }
+        
+        if (reasonTextarea && reasonCounter) {
+            reasonTextarea.addEventListener("input", function() {
+                updateCounter(reasonTextarea, reasonCounter, 500);
+            });
+            updateCounter(reasonTextarea, reasonCounter, 500); // Initialize
+        }
+        
+        if (expectationTextarea && expectationCounter) {
+            expectationTextarea.addEventListener("input", function() {
+                updateCounter(expectationTextarea, expectationCounter, 1000);
+            });
+            updateCounter(expectationTextarea, expectationCounter, 1000); // Initialize
+        }
+    });
+</script>
+</body>
+</html>

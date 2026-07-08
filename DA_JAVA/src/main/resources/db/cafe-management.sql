@@ -72,6 +72,15 @@ CREATE TABLE Customer (
     is_active BIT NOT NULL DEFAULT 1
 );
 
+CREATE TABLE CustomerFeedback (
+    feedback_id INT IDENTITY PRIMARY KEY,
+    customer_id INT NOT NULL,
+    reason NVARCHAR(500) NOT NULL,
+    expectation NVARCHAR(1000) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_CustomerFeedback_Customer FOREIGN KEY (customer_id) REFERENCES Customer(customer_id)
+);
+
 CREATE TABLE TableCafe (
     table_id INT IDENTITY PRIMARY KEY,
     table_name NVARCHAR(50) NOT NULL UNIQUE,
